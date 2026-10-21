@@ -1,2 +1,14 @@
 # Exceeds GitHub's 100 MB per-file limit; retain locally or host separately.
-TX_North2_GCS_3m_NAVDm.tif
+data/raw/noaa/TX_North2_GCS_3m_NAVDm.tif
+
+# Generated artifacts and local-only outputs
+data/processed/generated/
+tiles/
+models/
+mlruns/
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+build/

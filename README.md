@@ -76,13 +76,13 @@ The photographs below are contextual project assets, not model inputs and not ge
 
 <table>
 	<tr>
-		<td align="center"><img src="Hurricane_Harvey_Flooding_and_Damage_%2836260763253%29.jpg" alt="Houston-area flooding during Hurricane Harvey" width="300"><br>Hurricane Harvey (2017)</td>
-		<td align="center"><img src="Memorial_Day_Flood_in_Houston%2C_2015.jpg" alt="Memorial Day flooding in Houston" width="300"><br>Memorial Day storm (2015)</td>
-		<td align="center"><img src="Tropical_Storm_Imelda_Flooding_%2848762973607%29.jpg" alt="Flooding during Tropical Storm Imelda" width="300"><br>Tropical Storm Imelda (2019)</td>
+		<td align="center"><img src="assets/images/Hurricane_Harvey_Flooding_and_Damage_%2836260763253%29.jpg" alt="Houston-area flooding during Hurricane Harvey" width="300"><br>Hurricane Harvey (2017)</td>
+		<td align="center"><img src="assets/images/Memorial_Day_Flood_in_Houston%2C_2015.jpg" alt="Memorial Day flooding in Houston" width="300"><br>Memorial Day storm (2015)</td>
+		<td align="center"><img src="assets/images/Tropical_Storm_Imelda_Flooding_%2848762973607%29.jpg" alt="Flooding during Tropical Storm Imelda" width="300"><br>Tropical Storm Imelda (2019)</td>
 	</tr>
 </table>
 
-**Presentation:** [FloodProject-V4-Presentation.pptx](FloodProject-V4-Presentation.pptx)
+**Presentation:** [FloodProject-V4-Presentation.pptx](assets/presentation/FloodProject-V4-Presentation.pptx)
 
 **Planned result figures:** Add validation and test-set plots here after running the full pipeline. Suggested figures: spatial fold map, storm-year report counts, ROC/precision-recall curves, confusion matrix at the selected threshold, model comparison, and SHAP global/local explanations. Do not publish illustrative or training-only scores as held-out results.
 
@@ -91,7 +91,7 @@ The photographs below are contextual project assets, not model inputs and not ge
 | Source | Intended use | Project status |
 |---|---|---|
 | City of Houston 311 flooding/drainage reports | Historical report locations and flood labels | CSV files are included for 2015, 2016, 2017, and 2019 |
-| NOAA Office for Coastal Management, Texas DEMs | Elevation, slope, terrain patches | A local 3 m raster is present but not tracked in Git (see [large-file note](#large-raster-not-in-git)) |
+| NOAA Office for Coastal Management, Texas DEMs | Elevation, slope, terrain patches | Local raster is at `data/raw/noaa/TX_North2_GCS_3m_NAVDm.tif`; it is not tracked in Git (see [large-file note](#large-raster-not-in-git)) |
 | USGS National Map / National Hydrography Dataset (NHD) | Streams/bayous and distance features | Download and processing planned |
 | Multi-Resolution Land Characteristics Consortium (MRLC), NLCD 2019 | Land-cover class and impervious/paved proxy | Download and processing planned |
 | NOAA NCEI, GHCN-Daily | Rainfall features | Download, station selection, and interpolation planned |
@@ -102,17 +102,17 @@ The project description reports the following dataset sizes and split; verify th
 
 | File | Reported rows | Period | Intended role |
 |---|---:|---|---|
-| `flood_training_set.csv` | 85,738 | 2015, 2016, 2017 storms | Model development and spatial cross-validation |
-| `flood_test_set.csv` | 24,852 | Tropical Storm Imelda, 2019 | Final held-out-storm evaluation |
+| `data/processed/flood_training_set.csv` | 85,738 | 2015, 2016, 2017 storms | Model development and spatial cross-validation |
+| `data/processed/flood_test_set.csv` | 24,852 | Tropical Storm Imelda, 2019 | Final held-out-storm evaluation |
 
 The project description reports a balanced 50/50 label distribution in each table. Because this is a constructed/balanced dataset, its predicted probabilities may not reflect real-world flood prevalence without additional calibration and representative sampling. Report the sampling procedure, missing-report limitations, duplicate handling, and label definition in the final report.
 
 ### Original report data
 
-- `floodingdrainage2015.csv`
-- `floodingdrainage2016.csv`
-- `floodingdrainage2017.csv`
-- `floodingdrainage2019.csv`
+- `data/raw/city_of_houston/floodingdrainage2015.csv`
+- `data/raw/city_of_houston/floodingdrainage2016.csv`
+- `data/raw/city_of_houston/floodingdrainage2017.csv`
+- `data/raw/city_of_houston/floodingdrainage2019.csv`
 
 Before combining public sources, document each download date, license/usage terms, spatial reference system, temporal coverage, and any filtering or transformation. Never infer that a location did not flood solely because no 311 report exists there.
 
@@ -191,32 +191,56 @@ Geocoding, rainfall scenario construction, map coverage, and model feature avail
 
 ## Repository contents
 
-### Present now
+### Shared project layout
 
 ```text
 .
-├── README.md
-├── .gitignore
-├── flood_training_set.csv
-├── flood_test_set.csv
-├── floodingdrainage2015.csv
-├── floodingdrainage2016.csv
-├── floodingdrainage2017.csv
-├── floodingdrainage2019.csv
-├── FloodProject-V4-Presentation.pptx
-├── Hurricane_Harvey_Flooding_and_Damage_(36260763253).jpg
-├── Memorial_Day_Flood_in_Houston,_2015.jpg
-└── Tropical_Storm_Imelda_Flooding_(48762973607).jpg
+├── README.md                         # Project overview, workflow, methods, status
+├── assets/
+│   ├── images/                       # Contextual storm photographs
+│   └── presentation/                 # Course presentation
+├── data/
+│   ├── raw/
+│   │   ├── city_of_houston/          # Original annual flooding/drainage CSVs
+│   │   ├── noaa/                     # DEM (large, local-only; excluded from Git)
+│   │   ├── usgs/                     # Planned NHD downloads
+│   │   ├── mrlc/                     # Planned NLCD downloads
+│   │   └── noaa_rainfall/            # Planned GHCN data
+│   └── processed/                    # Prepared train/test tables
+├── notebooks/                        # Shared analysis notebooks
+├── src/                              # Shared reusable Python code
+├── app/                              # Planned backend/frontend application
+└── team/
+	├── marvin/                       # Marvin's notes and experiments
+	├── aaliyah/                      # Aaliyah's notes and experiments
+	└── sakina/                       # Sakina's notes and experiments
 ```
+
+The directory guide files are present; the shared code pipeline and app are still planned work. Do not duplicate shared datasets in `team/`.
+
+### Branches and collaboration
+
+The shared `main` branch is the integration baseline. Each teammate has an individual branch—`marvin`, `aaliyah`, and `sakina`—and a corresponding `team/<name>/` workspace. Start work on your branch, commit your changes there, then open a pull request into `main` so shared code and data changes can be reviewed. Keep each teammate's branch updated from `main`; avoid direct commits to `main` for individual work.
+
+Use the personal folders for scratch notes and experiments. Reusable code belongs in shared `src/`, `notebooks/`, or `app/` paths via a reviewed pull request. The team's task assignments are not yet specified; agree on ownership and record it in each member README rather than assuming roles.
+
+Clone the repository once, then switch to your branch:
+
+```bash
+git clone https://github.com/sakina-saifuddin/Spatio-Temporal-Urban-Flood-Hotspot-Prediction-with-Multi-Source-Geospatial-Data-Engineering-.git
+cd Spatio-Temporal-Urban-Flood-Hotspot-Prediction-with-Multi-Source-Geospatial-Data-Engineering-
+git switch marvin   # or: git switch aaliyah / git switch sakina
+```
+
+To bring reviewed shared work into your branch, run `git switch main`, `git pull`, then `git switch <your-branch>` and `git merge main`. Push your branch and open a pull request when your change is ready.
 
 ### Planned project organization
 
 ```text
 flood_project/
 ├── data/
-│   ├── raw/                 # Downloaded DEM, NHD, NLCD, and rainfall data
-│   ├── flood_training_set.csv
-│   └── flood_test_set.csv
+│   ├── raw/                 # Original source data by provider
+│   └── processed/           # flood_training_set.csv and flood_test_set.csv
 ├── tiles/
 │   ├── train/
 │   └── test/
@@ -235,10 +259,14 @@ flood_project/
 ├── app/
 │   ├── backend/
 │   └── frontend/
+├── team/
+│   ├── marvin/
+│   ├── aaliyah/
+│   └── sakina/
 └── requirements.txt
 ```
 
-The tree above is the target organization, not a claim that those scripts or folders already exist. Generated tiles, model weights, and raw downloads should have documented reproducible generation steps and should not be committed if they exceed repository limits.
+The tree above is the target pipeline organization, not a claim that those scripts already exist. Generated tiles, model weights, and raw downloads should have documented reproducible generation steps and should not be committed if they exceed repository limits.
 
 ## Setup and current limitations
 
@@ -246,7 +274,7 @@ No executable pipeline or dependency manifest is included yet. When the pipeline
 
 ### Large raster not in Git
 
-`TX_North2_GCS_3m_NAVDm.tif` is approximately 4.2 GB. It is intentionally excluded by `.gitignore` because it exceeds GitHub’s 100 MB per-file limit. It remains on the original local machine, but is **not available to other repository users**. Obtain the NOAA source independently or place the raster in an approved external storage/data repository and document its URL, checksum, license, and download instructions. Do not commit generated copies of this raster or large tile collections.
+`data/raw/noaa/TX_North2_GCS_3m_NAVDm.tif` is approximately 4.2 GB. It is intentionally excluded by `.gitignore` because it exceeds GitHub’s 100 MB per-file limit. It remains on the original local machine, but is **not available to other repository users**. Obtain the NOAA source independently or place the raster in an approved external storage/data repository and document its URL, checksum, license, and download instructions. Do not commit generated copies of this raster or large tile collections.
 
 Raw data may have third-party licensing or redistribution restrictions. Check the terms for each source before sharing data, derived files, or photographs publicly.
 
