@@ -266,16 +266,6 @@ Complete this table only with measured, reproducible results. Specify the spatia
 
 Add figures and per-location explanations after results have been generated from the saved evaluation pipeline. Include model/data versions and the exact commit or configuration used to produce them.
 
-## Team and course
-
-- **Course:** COSC 6368 — Artificial Intelligence
-- **Institution:** University of Houston
-- **Term:** Fall 2026
-- **Team:** Three-person university project
-- **Proposal report due:** October 26, 2026
-- **Final presentation:** November 30, 2026
-
-Add team-member names, roles, and contact details here only with their consent.
 
 ## References
 
