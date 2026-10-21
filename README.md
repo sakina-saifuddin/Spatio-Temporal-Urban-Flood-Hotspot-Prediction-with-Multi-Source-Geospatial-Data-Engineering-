@@ -2,7 +2,6 @@
 
 ### Multi-Source Geospatial Data Engineering and Explainable Deep Learning — Houston, Texas
 
-University of Houston · COSC 6368 Artificial Intelligence · Fall 2026 · Three-person team
 
 > **Research prototype, not an official flood warning.** Predictions must not be used as a substitute for emergency alerts, engineering assessments, insurance decisions, or official flood maps.
 
