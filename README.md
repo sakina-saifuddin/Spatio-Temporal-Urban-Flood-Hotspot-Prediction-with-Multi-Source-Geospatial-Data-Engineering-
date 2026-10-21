@@ -22,7 +22,6 @@ This project aims to estimate whether a Houston location is a flood hotspot from
 - [Repository contents](#repository-contents)
 - [Setup and current limitations](#setup-and-current-limitations)
 - [Evaluation and results](#evaluation-and-results)
-- [Team and course](#team-and-course)
 - [References](#references)
 
 ## Project overview
