@@ -1,0 +1,5 @@
+year,original_rows,unique_locations_before_filter,locations_after_filter,locations_removed,original_rows_represented_after_filter,original_rows_excluded
+2015,14167,11009,10958,51,14113,54
+2016,14143,11146,11044,102,14034,109
+2017,14559,11851,11765,86,14466,93
+2019,12426,9763,9683,80,12342,84
