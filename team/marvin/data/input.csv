@@ -1,0 +1,12 @@
+year,storm_name,storm_date,lat,lon,weight,elevation_m,slope_degrees,distance_to_bayou_m,paved_pct,land_cover_type,rainfall_inches,flooded
+2015,Memorial Day Flood,2015-05-26,29.86219212,-95.29488379,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.69489651,-95.29959315,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.68447687,-95.51863868,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.77397482,-95.46620758,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.81954184,-95.39187254,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.69146387,-95.35923642,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.73591646,-95.40349136,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.71888284,-95.26868341,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.8464448,-95.29740863,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.73613533,-95.48165186,1,,,,,,,1
+2015,Memorial Day Flood,2015-05-26,29.79890775,-95.46782518,1,,,,,,,1
