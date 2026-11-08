@@ -1,0 +1,4 @@
+step,rows_before,rows_removed,rows_after
+remove_duplicates,85738,8863,76875
+keep_developed_negatives,76875,10310,66565
+drop_nondeveloped_positives,66565,51,66514
