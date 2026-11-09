@@ -93,9 +93,11 @@ def cross_validate(
     splits: Iterable[CrossValidationSplit],
     name: str,
     split_name: str,
+    drop_features: Iterable[str] = (),
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fit fold-local pipelines and return fold metrics plus out-of-fold predictions."""
-    X, y = get_xy(df)
+    drop_features = tuple(drop_features)
+    X, y = get_xy(df, drop_features=drop_features)
     fold_metrics: list[dict[str, object]] = []
     oof_frames: list[pd.DataFrame] = []
 
@@ -114,7 +116,7 @@ def cross_validate(
 
         pipeline = Pipeline(
             [
-                ("preprocessor", build_preprocessor()),
+                ("preprocessor", build_preprocessor(drop_features=drop_features)),
                 ("model", model_factory()),
             ]
         )

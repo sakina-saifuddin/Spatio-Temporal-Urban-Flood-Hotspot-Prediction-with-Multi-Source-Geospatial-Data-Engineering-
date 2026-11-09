@@ -1,0 +1,6 @@
+model,features_used,cutoff,area_recall_at_cutoff,area_precision_at_cutoff,storm_recall_at_cutoff,storm_precision_at_cutoff,role
+logistic_regression_no_rain,"elevation_m, slope_degrees, distance_to_bayou_m, paved_pct, land_cover_type; no rainfall_inches",0.44,0.855132,0.677193,0.855927,0.677333,final
+lightgbm_no_rain,"elevation_m, slope_degrees, distance_to_bayou_m, paved_pct, land_cover_type; no rainfall_inches",0.50,0.852776,0.801173,0.884141,0.805155,final
+mlp_no_rain,"elevation_m, slope_degrees, distance_to_bayou_m, paved_pct, land_cover_type; no rainfall_inches",0.47,0.852069,0.740820,0.847268,0.744963,final
+cnn_hybrid,"elevation_m, slope_degrees, distance_to_bayou_m, paved_pct, land_cover_type, 32x32 relative-elevation terrain tile; no rainfall_inches",0.47,0.852511,0.777330,0.868267,0.766443,final
+cnn_tile_only,"32x32 relative-elevation terrain tile; no rainfall_inches",0.38,0.856133,0.651808,0.906906,0.618552,experiment only

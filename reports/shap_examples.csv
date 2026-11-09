@@ -1,0 +1,4 @@
+example,row_index,latitude,longitude,y_true,y_pred_at_frozen_cutoff,y_prob
+flooded_correct,52427,29.73933765,-95.37204098,1,1,0.9812046947798141
+not_flooded_correct,61566,29.92645778,-95.7493532,0,0,2.800112380265597e-05
+wrong_prediction,16356,30.06814174,-95.23989635,0,1,0.5000959436877126

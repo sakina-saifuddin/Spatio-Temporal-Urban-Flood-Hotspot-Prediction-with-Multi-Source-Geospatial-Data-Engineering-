@@ -1,307 +1,181 @@
 # Spatio-Temporal Urban Flood Hotspot Prediction
 
-### Multi-Source Geospatial Data Engineering and Explainable Deep Learning — Houston, Texas
+This Houston research project builds and evaluates models that distinguish sampled locations with a 311 flooding report from sampled locations without one. It combines report labels with terrain, drainage, land-cover, highway-proximity, and rainfall data; compares table-based models with terrain-image CNNs; and uses SHAP to explain a frozen LightGBM model. The final model setup was frozen before a one-time evaluation on Tropical Storm Imelda data.
 
+> **Research prototype, not an official flood warning.** The label is based on reports and sampling, not measured flood depth or verified property-level flooding. Do not use model outputs instead of official warnings, engineering assessments, or flood maps.
 
-> **Research prototype, not an official flood warning.** Predictions must not be used as a substitute for emergency alerts, engineering assessments, insurance decisions, or official flood maps.
+## 1. Project summary
 
-This project aims to estimate whether a Houston location is a flood hotspot from historical storm reports and environmental/geospatial features, return a flood probability, and explain the prediction. The planned interactive map will let users explore locations and hypothetical rainfall scenarios.
+The completed workflow cleans and enriches Houston flood-report data, compares models using geographic and storm holdouts, freezes the selected no-rainfall model setup, evaluates it once on the reserved Imelda storm, and explains the final LightGBM model with training-only SHAP values.
 
-**Project status:** Source datasets, prepared train/test tables, photographs, and the course presentation are currently in the repository. Geospatial enrichment, model training, SHAP analysis, and the web application are planned work; no model scores or application capabilities are claimed here until implemented and evaluated.
+## 2. Problem and label
 
-## Contents
+The target is `flooded`:
 
-- [Project overview](#project-overview)
-- [Project flow](#project-flow)
-- [Visuals](#visuals)
-- [Data and provenance](#data-and-provenance)
-- [Feature plan](#feature-plan)
-- [Model and validation plan](#model-and-validation-plan)
-- [Explainability plan](#explainability-plan)
-- [Planned application](#planned-application)
-- [Repository contents](#repository-contents)
-- [Setup and current limitations](#setup-and-current-limitations)
-- [Evaluation and results](#evaluation-and-results)
-- [References](#references)
+- **Flooded (`1`)**: a location associated with a Houston 311 flooding report.
+- **Not flooded (`0`)**: a sampled spot with no such report.
 
-## Project overview
+A missing report does not prove that a location did not flood. The labels describe the project’s constructed sample, not a complete inventory of observed flooding or real-world flood prevalence.
 
-### Research question
+## 3. Data sources
 
-Can historical Houston 311 flooding reports and multi-source terrain, drainage, land-cover, and rainfall data help identify locations associated with flooding in a storm that was not used for training?
+| Data | Source and use |
+|---|---|
+| Flood reports and sampled no-report locations | City of Houston 311 records; used to form the training labels and location sample. |
+| Elevation and terrain | **USGS 1-meter Digital Elevation Model (DEM), obtained through The National Map.** Elevation is used to derive `elevation_m`, `slope_degrees`, and the terrain images. Correction: the terrain workflow used this USGS 1-meter DEM, not the previously listed NOAA 3-meter raster. |
+| Streams and bayous | USGS National Hydrography Dataset; used for `distance_to_bayou_m`. |
+| Land cover | NLCD; used for `land_cover_type`. |
+| Highway proximity | OpenStreetMap (OSM). `paved_pct` is really the share of the tract near major highways; it is **not** NLCD imperviousness and should not be interpreted as a general pavement percentage. |
+| Rainfall | NOAA GHCN-Daily data, used in earlier model comparisons and retained in the cleaned table, but excluded from the final models. |
 
-### Intended output
+## 4. Data cleaning
 
-For a supported Houston location and scenario, the system is intended to provide:
+The training cleaning log records the following row counts:
 
-1. A probability estimate for the project’s operational flood-hotspot label.
-2. A configurable classification threshold, selected with flood recall in mind.
-3. A location-level explanation showing which available features influenced that estimate.
-4. A clear reminder that the prototype is not an official warning or a calibrated measure of an individual resident’s flood probability.
+| Training step | Rows before | Rows removed | Rows after |
+|---|---:|---:|---:|
+| Starting training table | 85,738 | — | 85,738 |
+| Remove duplicate latitude/longitude/storm rows | 85,738 | 8,863 | 76,875 |
+| Keep flooded rows and developed-land non-flooded rows | 76,875 | 10,310 | 66,565 |
+| Remove flooded rows outside developed land | 66,565 | 51 | 66,514 |
 
-The label is based on the available report-derived dataset. It should not be interpreted as a verified record of every flood or as a measure of flood depth, duration, or property-level risk.
+The final training table is `data/processed/training_clean.csv`. Its `grid_id` is used to make spatially grouped validation folds. Cleaning operations and counts are recorded in `reports/cleaning_log.csv`.
 
-## Project flow
+## 5. Features and rainfall decision
 
-The diagram distinguishes the intended workflow from completed work. The final test set is reserved for the 2019 Imelda storm; model and preprocessing choices should be made using training data and spatial validation only.
+The final table-based models use:
 
-```mermaid
-flowchart TD
-		A[Houston 311 flooding and drainage reports] --> B[Clean reports and prepared labels]
-		C[NOAA LiDAR elevation DEM] --> D[Elevation, slope, and 32 × 32 terrain tiles]
-		E[USGS National Hydrography Dataset] --> F[Distance to streams and bayous]
-		G[MRLC NLCD 2019 land cover] --> H[Paved fraction and land-cover class]
-		I[NOAA GHCN daily rainfall] --> J[Storm and location rainfall features]
-		B --> K[Spatial joins and feature engineering]
-		D --> K
-		F --> K
-		H --> K
-		J --> K
-		K --> L[Training: 2015, 2016, 2017]
-		L --> M[Spatial group cross-validation and recall-focused tuning]
-		M --> N[RF · XGBoost · LightGBM · MLP · terrain CNN]
-		N --> O[Held-out storm test: Imelda 2019]
-		O --> P[Recall · precision · F1 · ROC-AUC · accuracy]
-		N --> Q[SHAP explanations and feature importance]
-		P --> R[FastAPI prediction service]
-		Q --> R
-		R --> S[React + Leaflet interactive research map]
-```
+- `elevation_m`
+- `slope_degrees`
+- `distance_to_bayou_m`
+- `paved_pct`
+- `land_cover_type`
 
-## Visuals
+`rainfall_inches` is intentionally excluded from every final model. Saved project analyses show that rainfall differs substantially across storms: Hurricane Harvey’s maximum was 20.818 inches, compared with 13.216 inches for the highest maximum among the other training storms; Imelda’s median was 1.480 inches, compared with 8.017 inches for cleaned training. These storm differences, and the inconsistent cross-storm behavior when rainfall was included, motivated leaving rainfall out. They do not prove that rainfall caused the model differences.
 
-The photographs below are contextual project assets, not model inputs and not geolocated evidence of a specific prediction. Please preserve the original source/creator attribution when the image licensing permits it; the filenames alone do not establish image licenses.
+CNNs also use 32 × 32 relative-elevation terrain tiles. Tile values are centered on the location and scaled by the fixed 10-meter constant; missing raster pixels are filled with zero.
 
-<table>
-	<tr>
-		<td align="center"><img src="assets/images/Hurricane_Harvey_Flooding_and_Damage_%2836260763253%29.jpg" alt="Houston-area flooding during Hurricane Harvey" width="300"><br>Hurricane Harvey (2017)</td>
-		<td align="center"><img src="assets/images/Memorial_Day_Flood_in_Houston%2C_2015.jpg" alt="Memorial Day flooding in Houston" width="300"><br>Memorial Day storm (2015)</td>
-		<td align="center"><img src="assets/images/Tropical_Storm_Imelda_Flooding_%2848762973607%29.jpg" alt="Flooding during Tropical Storm Imelda" width="300"><br>Tropical Storm Imelda (2019)</td>
-	</tr>
-</table>
+## 6. Validation and frozen setup
 
-**Presentation:** [FloodProject-V4-Presentation.pptx](assets/presentation/FloodProject-V4-Presentation.pptx)
+- **Area-group validation:** five folds grouped by `grid_id`, so grid cells are held out from the corresponding training fold.
+- **Leave-one-storm-out validation:** each of the three training storms is held out in turn.
+- Table preprocessing is fitted on training rows within each fold.
+- Validation metrics in `reports/results.csv` use the default 0.5 classification threshold.
+- Model and feature choices were frozen in `reports/final_setup.csv` and `docs/FINAL_SETUP.md`. The saved cutoffs were selected from area-fold out-of-fold predictions and then applied unchanged to the storm folds.
+- Imelda was reserved for one final test after the setup was frozen. It was evaluated once; its scores were not used to change models, features, or cutoffs.
 
-**Planned result figures:** Add validation and test-set plots here after running the full pipeline. Suggested figures: spatial fold map, storm-year report counts, ROC/precision-recall curves, confusion matrix at the selected threshold, model comparison, and SHAP global/local explanations. Do not publish illustrative or training-only scores as held-out results.
+## 7. Models compared on validation folds
 
-## Data and provenance
+The following table reports the no-rainfall model variants and the terrain-only CNN. Values are mean scores from `reports/results.csv`; classification metrics use the default 0.5 threshold. ROC-AUC and PR-AUC use probabilities.
 
-| Source | Intended use | Project status |
-|---|---|---|
-| City of Houston 311 flooding/drainage reports | Historical report locations and flood labels | CSV files are included for 2015, 2016, 2017, and 2019 |
-| NOAA Office for Coastal Management, Texas DEMs | Elevation, slope, terrain patches | Local raster is at `data/raw/noaa/TX_North2_GCS_3m_NAVDm.tif`; it is not tracked in Git (see [large-file note](#large-raster-not-in-git)) |
-| USGS National Map / National Hydrography Dataset (NHD) | Streams/bayous and distance features | Download and processing planned |
-| Multi-Resolution Land Characteristics Consortium (MRLC), NLCD 2019 | Land-cover class and impervious/paved proxy | Download and processing planned |
-| NOAA NCEI, GHCN-Daily | Rainfall features | Download, station selection, and interpolation planned |
+| Model | Validation | Recall | Precision | F1 | ROC-AUC | PR-AUC |
+|---|---|---:|---:|---:|---:|---:|
+| Logistic regression | Area groups | 0.7902 | 0.7019 | 0.7434 | 0.7809 | 0.7431 |
+| Logistic regression | Leave one storm out | 0.7921 | 0.7018 | 0.7442 | 0.7814 | 0.7439 |
+| Random Forest | Area groups | 0.7883 | 0.7944 | 0.7912 | 0.8658 | 0.8397 |
+| Random Forest | Leave one storm out | 0.8596 | 0.8011 | 0.8293 | 0.8963 | 0.8833 |
+| XGBoost | Area groups | 0.8445 | 0.7979 | 0.8205 | 0.8869 | 0.8632 |
+| XGBoost | Leave one storm out | 0.8785 | 0.8017 | 0.8383 | 0.8982 | 0.8736 |
+| LightGBM | Area groups | 0.8528 | 0.8012 | 0.8261 | 0.8913 | 0.8677 |
+| LightGBM | Leave one storm out | 0.8843 | 0.8051 | 0.8428 | 0.9015 | 0.8772 |
+| MLP | Area groups | 0.8291 | 0.7518 | 0.7884 | 0.8530 | 0.8316 |
+| MLP | Leave one storm out | 0.8248 | 0.7565 | 0.7891 | 0.8541 | 0.8318 |
+| CNN tile-only | Area groups | 0.7261 | 0.7057 | 0.7154 | 0.7738 | 0.7562 |
+| CNN tile-only | Leave one storm out | 0.8163 | 0.6670 | 0.7337 | 0.7692 | 0.7514 |
+| CNN hybrid | Area groups | 0.8318 | 0.7869 | 0.8086 | 0.8797 | 0.8641 |
+| CNN hybrid | Leave one storm out | 0.8492 | 0.7781 | 0.8118 | 0.8791 | 0.8634 |
 
-### Prepared tables
+The hybrid CNN combines the terrain tile with the table features. LightGBM without rainfall had the strongest ROC-AUC among these final-model candidates on both validation designs.
 
-The project description reports the following dataset sizes and split; verify them against the current CSVs when rebuilding the pipeline:
+## 8. One-time final Imelda test
 
-| File | Reported rows | Period | Intended role |
-|---|---:|---|---|
-| `data/processed/flood_training_set.csv` | 85,738 | 2015, 2016, 2017 storms | Model development and spatial cross-validation |
-| `data/processed/flood_test_set.csv` | 24,852 | Tropical Storm Imelda, 2019 | Final held-out-storm evaluation |
+The following are saved results at each model’s **frozen cutoff**, from `reports/final_test_results.csv`. The experiment-only terrain CNN and dummy reference are not final models and are omitted here.
 
-The project description reports a balanced 50/50 label distribution in each table. Because this is a constructed/balanced dataset, its predicted probabilities may not reflect real-world flood prevalence without additional calibration and representative sampling. Report the sampling procedure, missing-report limitations, duplicate handling, and label definition in the final report.
-
-### Original report data
-
-- `data/raw/city_of_houston/floodingdrainage2015.csv`
-- `data/raw/city_of_houston/floodingdrainage2016.csv`
-- `data/raw/city_of_houston/floodingdrainage2017.csv`
-- `data/raw/city_of_houston/floodingdrainage2019.csv`
-
-Before combining public sources, document each download date, license/usage terms, spatial reference system, temporal coverage, and any filtering or transformation. Never infer that a location did not flood solely because no 311 report exists there.
-
-## Feature plan
-
-The prepared tables are described as containing these columns:
-
-| Feature | Meaning / planned source | Current status per project notes |
-|---|---|---|
-| `year`, `storm_name`, `storm_date` | Event/time context | Present |
-| `lat`, `lon` | Report/sample coordinates | Present |
-| `weight` | Existing sampling or record weight; meaning needs documentation | Present; definition to verify |
-| `elevation_m` | DEM elevation at the point | Empty; derive from DEM |
-| `slope_degrees` | Terrain gradient near the point | Empty; derive from DEM |
-| `distance_to_bayou_m` | Distance to nearest selected stream/bayou | Empty; derive from NHD geometry |
-| `paved_pct` | Impervious/paved surface proxy | Empty; derive from NLCD and document class mapping |
-| `land_cover_type` | Land-cover class | Empty; derive from NLCD |
-| `rainfall_inches` | Storm-associated rainfall feature | Empty; derive from documented gauge/time-window method |
-| `flooded` | Project target label (0/1) | Present; definition and provenance must be documented |
-
-Feature generation must use consistent coordinate systems, units, nodata handling, raster bounds, date windows, and point-to-grid rules. Fit any learned preprocessing only on the training folds to avoid leakage.
-
-## Model and validation plan
-
-Planned model families:
-
-1. Random Forest (scikit-learn)
-2. XGBoost
-3. LightGBM
-4. Multi-Layer Perceptron (MLP) on the feature table
-5. Convolutional Neural Network (CNN) on 32 × 32 elevation patches, optionally combined with tabular features if designed and validated explicitly
-
-### Split and fairness checks
-
-- **Development:** 2015–2017 storms only.
-- **Spatial cross-validation:** group nearby locations into geographic blocks and keep each block entirely within one fold. Define and report the block scheme; random row splits are not a substitute.
-- **Final temporal/storm test:** Tropical Storm Imelda 2019 only; do not use it for feature selection, threshold tuning, preprocessing fit, or hyperparameter selection.
-- **Spatial and storm leakage:** inspect repeated/near-duplicate coordinates, event identifiers, and sampling weights. Report whether the training/validation groups or storm metadata can act as shortcuts.
-
-Tune the decision threshold and model selection to emphasize flood recall, using spatial validation—not the final Imelda test. A high-recall threshold may increase false alarms, so present precision and the confusion matrix alongside recall.
-
-### Metrics to report
-
-- Flood-class recall (primary; state the positive class and selected threshold)
-- Precision and F1 score
-- ROC-AUC (and preferably precision-recall AUC for the balanced/constructed sample)
-- Accuracy and confusion matrix
-- Mean and variability across spatial folds
-- Held-out Imelda metrics once, after the pipeline is fixed
-- Calibration analysis if probabilities are presented as probabilities
-
-The project proposal cites an approximately 80% accuracy and 83–89% flood-recall benchmark from Liu, Felton, and Mostafavi (2024). Verify the full citation and compare only if target definition, sampling, evaluation split, and metrics are sufficiently comparable. This is a reference benchmark, not a result achieved by this project.
-
-## Explainability plan
-
-Planned SHAP approaches:
-
-- Random Forest, XGBoost, LightGBM: tree explainers where supported by the model/version.
-- MLP and CNN: a compatible gradient-based explainer or a carefully bounded model-agnostic explainer with a representative background set.
-- Global: summarize feature contributions across an explicitly identified evaluation sample.
-- Local: explain an individual prediction with signed contributions and the model’s baseline/output space.
-
-An explanation such as “low elevation increased the model score” describes model behavior, not proof of causation. For CNNs, image attribution and tabular SHAP values answer different questions; document the input and output being explained. Do not invent percentages for feature contributions or describe them as percentages of flood risk unless the SHAP output has been correctly transformed and labeled.
-
-## Planned application
-
-**Backend:** FastAPI prediction API. **Frontend:** React. **Map:** Leaflet (or Mapbox if selected and configured). Intended interactions:
-
-- Enter a Houston address or choose a map location.
-- View a research-model score and its uncertainty/limitations.
-- Inspect local explanation factors available for that location.
-- Adjust a 1–20 inch rainfall scenario slider and see scenario predictions update.
-- Compare a hypothetical heavy-rain scenario with the model’s supported input range.
-
-Geocoding, rainfall scenario construction, map coverage, and model feature availability must be implemented and documented before these interactions are described as working. Scenario predictions are not forecasts.
-
-## Repository contents
-
-### Shared project layout
-
-```text
-.
-├── README.md                         # Project overview, workflow, methods, status
-├── assets/
-│   ├── images/                       # Contextual storm photographs
-│   └── presentation/                 # Course presentation
-├── data/
-│   ├── raw/
-│   │   ├── city_of_houston/          # Original annual flooding/drainage CSVs
-│   │   ├── noaa/                     # DEM (large, local-only; excluded from Git)
-│   │   ├── usgs/                     # Planned NHD downloads
-│   │   ├── mrlc/                     # Planned NLCD downloads
-│   │   └── noaa_rainfall/            # Planned GHCN data
-│   └── processed/                    # Prepared train/test tables
-├── notebooks/                        # Shared analysis notebooks
-├── src/                              # Shared reusable Python code
-├── app/                              # Planned backend/frontend application
-└── team/
-	├── marvin/                       # Marvin's notes and experiments
-	├── aaliyah/                      # Aaliyah's notes and experiments
-	└── sakina/                       # Sakina's notes and experiments
-```
-
-The directory guide files are present; the shared code pipeline and app are still planned work. Do not duplicate shared datasets in `team/`.
-
-### Branches and collaboration
-
-The shared `main` branch is the integration baseline. Each teammate has an individual branch—`marvin`, `aaliyah`, and `sakina`—and a corresponding `team/<name>/` workspace. Start work on your branch, commit your changes there, then open a pull request into `main` so shared code and data changes can be reviewed. Keep each teammate's branch updated from `main`; avoid direct commits to `main` for individual work.
-
-Use the personal folders for scratch notes and experiments. Reusable code belongs in shared `src/`, `notebooks/`, or `app/` paths via a reviewed pull request. The team's task assignments are not yet specified; agree on ownership and record it in each member README rather than assuming roles.
-
-Clone the repository once, then switch to your branch:
-
-```bash
-git clone https://github.com/sakina-saifuddin/Spatio-Temporal-Urban-Flood-Hotspot-Prediction-with-Multi-Source-Geospatial-Data-Engineering-.git
-cd Spatio-Temporal-Urban-Flood-Hotspot-Prediction-with-Multi-Source-Geospatial-Data-Engineering-
-git switch marvin   # or: git switch aaliyah / git switch sakina
-```
-
-To bring reviewed shared work into your branch, run `git switch main`, `git pull`, then `git switch <your-branch>` and `git merge main`. Push your branch and open a pull request when your change is ready.
-
-### Planned project organization
-
-```text
-flood_project/
-├── data/
-│   ├── raw/                 # Original source data by provider
-│   └── processed/           # flood_training_set.csv and flood_test_set.csv
-├── tiles/
-│   ├── train/
-│   └── test/
-├── notebooks/
-│   ├── 01_data_engineering.ipynb
-│   ├── 02_eda.ipynb
-│   ├── 03_model_training.ipynb
-│   └── 04_shap_explainability.ipynb
-├── src/
-│   ├── data_engineering.py
-│   ├── tile_generator.py
-│   ├── models.py
-│   ├── train.py
-│   ├── evaluate.py
-│   └── shap_analysis.py
-├── app/
-│   ├── backend/
-│   └── frontend/
-├── team/
-│   ├── marvin/
-│   ├── aaliyah/
-│   └── sakina/
-└── requirements.txt
-```
-
-The tree above is the target pipeline organization, not a claim that those scripts already exist. Generated tiles, model weights, and raw downloads should have documented reproducible generation steps and should not be committed if they exceed repository limits.
-
-## Setup and current limitations
-
-No executable pipeline or dependency manifest is included yet. When the pipeline is implemented, document a reproducible environment and exact commands here. Planned Python libraries include pandas, NumPy, GeoPandas, Rasterio, Shapely, scikit-learn, XGBoost, LightGBM, PyTorch, SHAP, FastAPI, Uvicorn, Matplotlib, Seaborn, SciPy, and MLflow. Install only the dependencies needed by each component and record tested versions.
-
-### Large raster not in Git
-
-`data/raw/noaa/TX_North2_GCS_3m_NAVDm.tif` is approximately 4.2 GB. It is intentionally excluded by `.gitignore` because it exceeds GitHub’s 100 MB per-file limit. It remains on the original local machine, but is **not available to other repository users**. Obtain the NOAA source independently or place the raster in an approved external storage/data repository and document its URL, checksum, license, and download instructions. Do not commit generated copies of this raster or large tile collections.
-
-Raw data may have third-party licensing or redistribution restrictions. Check the terms for each source before sharing data, derived files, or photographs publicly.
-
-## Evaluation and results
-
-**Results are pending.** No model has been trained or evaluated in the current repository state. Do not treat the reported benchmark above as a project result.
-
-Complete this table only with measured, reproducible results. Specify the spatial validation design, selected threshold, positive class, and test sample for every metric. Keep the 2019 test set untouched until final evaluation.
-
-| Model | Spatial CV flood recall (mean ± SD) | Spatial CV precision | Spatial CV F1 | Imelda 2019 recall | Imelda 2019 precision | ROC-AUC | Threshold |
+| Final model | Frozen cutoff | Recall | Precision | F1 | Accuracy | ROC-AUC | PR-AUC |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Random Forest | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| XGBoost | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| LightGBM | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| MLP | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| Terrain CNN | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
+| Logistic regression without rainfall | 0.44 | 0.8125 | 0.6631 | 0.7303 | 0.6947 | 0.7511 | 0.7168 |
+| LightGBM without rainfall | 0.50 | 0.8655 | 0.7976 | 0.8302 | 0.8199 | 0.8896 | 0.8603 |
+| MLP without rainfall | 0.47 | 0.8402 | 0.7403 | 0.7871 | 0.7689 | 0.8429 | 0.8121 |
+| CNN hybrid without rainfall | 0.47 | 0.8459 | 0.7726 | 0.8076 | 0.7950 | 0.8746 | 0.8534 |
 
-Add figures and per-location explanations after results have been generated from the saved evaluation pipeline. Include model/data versions and the exact commit or configuration used to produce them.
+This is a single-storm result, not evidence that the models generalize to all future storms or locations. `reports/final_test.lock` prevents an accidental second run.
 
+## 9. SHAP findings
 
-## References
+Mean absolute SHAP values for the frozen LightGBM model, from `reports/shap_feature_importance.csv`:
 
-- NOAA Office for Coastal Management, [Digital Coast elevation data](https://coast.noaa.gov/slrdata/DEMs/TX/index.html).
-- USGS, [The National Map Downloader](https://apps.nationalmap.gov/downloader/) and National Hydrography Dataset.
-- Multi-Resolution Land Characteristics Consortium, [NLCD and MRLC viewer](https://www.mrlc.gov/viewer).
-- NOAA National Centers for Environmental Information, [Climate Data Online](https://www.ncei.noaa.gov/cdo-web/) and GHCN-Daily.
-- City of Houston, [311 service requests and flooding/drainage information](https://www.houstontx.gov/heatmaps).
-- Liu, Felton, and Mostafavi (2024): full bibliographic citation and source URL to be added after verification; the proposal’s benchmark attribution is not yet independently documented here.
+| Rank | Feature | Mean absolute SHAP |
+|---:|---|---:|
+| 1 | `elevation_m` | 1.329801 |
+| 2 | `paved_pct` | 0.723200 |
+| 3 | `slope_degrees` | 0.653920 |
+| 4 | Land cover: Developed, Low Intensity | 0.192739 |
+| 5 | `distance_to_bayou_m` | 0.152670 |
+| 6 | Land cover: Developed, Open Space | 0.126350 |
+| 7 | Land cover: Developed, Medium Intensity | 0.067090 |
+| 8 | Land cover: Developed, High Intensity | 0.058367 |
 
-## Acknowledgments
+Built-in LightGBM split-count importance partly agrees with SHAP: the methods share two of their top three features. **SHAP shows what the model uses, not what causes flooding.** In particular, `paved_pct` is the share of the tract near major highways.
 
-This project uses publicly available datasets and is intended for educational research. Add exact dataset citations, image creator credits, and applicable license notices as the team verifies each source.
+## 10. Limitations
+
+- The final evaluation uses one test storm.
+- About 3,800 grid cells are shared between the Imelda sample and training, so this tests a new storm at mostly familiar places.
+- A 311 report is not a direct measurement of flooding; no report is not proof of no flood.
+- A 320-meter terrain tile near a 1-kilometer grid-cell border can overlap a neighboring cell, making area validation slightly less strict for CNNs than for table models.
+- 3,828 training terrain pictures (5.755%) contain at least one missing or nodata pixel; those pixels are filled with zero.
+- No hyperparameter search was performed. The saved cutoffs were selected from validation predictions before the final test.
+- `paved_pct` describes proximity to major highways, not general imperviousness, and SHAP is not a causal analysis.
+
+## 11. Project structure and running the notebooks
+
+```text
+data/
+  raw/                         Source datasets and local elevation rasters
+  processed/
+    training_clean.csv         Cleaned training table
+    tiles/                     Local training and test terrain arrays
+src/
+  data.py                      Data cleaning/loading helpers
+  features.py                  Feature preparation and validation splits
+  models.py                    Fixed model constructors
+  evaluate.py                  Metrics and validation result saving
+  tiles.py                     Raster and terrain-tile helpers
+  cnn.py                       Terrain CNNs
+  final_test.py                Locked, one-time final test runner
+  explain.py                   Training-only LightGBM SHAP analysis
+notebooks/                     Ordered analysis notebooks
+reports/
+  results.csv                  Saved validation metrics
+  final_setup.csv              Frozen models, features, and cutoffs
+  final_test_results.csv       Saved one-time test metrics
+  shap_feature_importance.csv  SHAP and built-in importance comparison
+docs/
+  FINAL_SETUP.md               Frozen final setup details
+  PROJECT_RECORD.md             Detailed project history
+```
+
+Run notebooks in order:
+
+1. `01_data_cleaning.ipynb` — prepare the training table
+2. `02_eda.ipynb` — explore the cleaned data
+3. `03_splits.ipynb` — inspect features and validation splits
+4. `04_baseline.ipynb` — evaluate baseline models
+5. `05_tree_models.ipynb` — compare tree models
+6. `06_storm_diagnosis.ipynb` — inspect storm-held-out behavior
+7. `07_threshold.ipynb` — select validation-based cutoffs
+8. `08_mlp.ipynb` — compare the MLP
+9. `09_no_rainfall_comparison.ipynb` — compare models with and without rainfall
+10. `10_cnn.ipynb` — compare terrain CNNs
+11. `11_final_test.ipynb` — one-time frozen final test
+12. `12_shap.ipynb` — explain the frozen LightGBM model using training rows
+
+The final-test notebook is intentionally one-time: do not run it if `reports/final_test.lock` already exists. The SHAP notebook requires the dependencies in `requirements.txt`. Large raster and tile data are local artifacts and should remain out of Git.
+
+## 12. Team
+
+- Sakina Saifuddin
+- Aaliyah D. McAfee
+- Van Bao Nguyen
+
+COSC 6368 · University of Houston

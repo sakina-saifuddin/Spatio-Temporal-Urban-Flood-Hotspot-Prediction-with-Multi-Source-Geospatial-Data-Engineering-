@@ -9,6 +9,7 @@ from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 
 from src.config import SEED
+from src.mlp import TorchMLPClassifier
 
 ModelFactory = Callable[[], object]
 
@@ -55,10 +56,16 @@ def get_lightgbm() -> LGBMClassifier:
     )
 
 
+def get_mlp() -> TorchMLPClassifier:
+    """Return an unfitted PyTorch MLP classifier."""
+    return TorchMLPClassifier()
+
+
 MODEL_REGISTRY: dict[str, ModelFactory] = {
     "dummy": get_dummy,
     "logistic_regression": get_logistic_regression,
     "random_forest": get_random_forest,
     "xgboost": get_xgboost,
     "lightgbm": get_lightgbm,
+    "mlp": get_mlp,
 }

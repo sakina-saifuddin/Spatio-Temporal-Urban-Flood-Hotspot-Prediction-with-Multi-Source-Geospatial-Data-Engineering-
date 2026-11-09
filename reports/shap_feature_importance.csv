@@ -1,0 +1,9 @@
+feature,mean_abs_shap,shap_rank,lightgbm_split_importance,lightgbm_split_rank
+elevation_m,1.3298013544095157,1,2554,2
+paved_pct,0.7231998872446291,2,2745,1
+slope_degrees,0.6539197361237777,3,1503,4
+"land cover type: Developed, Low Intensity",0.19273918066992637,4,169,5
+distance_to_bayou_m,0.15267011618643497,5,1640,3
+"land cover type: Developed, Open Space",0.1263497949346553,6,121,8
+"land cover type: Developed, Medium Intensity",0.06709011085530879,7,138,6
+"land cover type: Developed, High Intensity",0.058367347367330805,8,130,7

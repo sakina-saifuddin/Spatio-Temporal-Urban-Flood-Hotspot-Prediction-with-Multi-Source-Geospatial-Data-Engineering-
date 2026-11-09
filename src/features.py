@@ -22,24 +22,48 @@ def _require_columns(df: pd.DataFrame, columns: tuple[str, ...]) -> None:
         raise ValueError(f"DataFrame is missing required columns: {missing}")
 
 
-def get_xy(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
-    """Select configured model features and the target without leakage columns."""
-    features = (*NUMERIC_FEATURES, *CATEGORICAL_FEATURES)
+def _selected_features(
+    drop_features: Iterable[str] = (),
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return configured numeric and categorical features after requested drops."""
+    dropped = set(drop_features)
+    configured = set(NUMERIC_FEATURES) | set(CATEGORICAL_FEATURES)
+    unknown = dropped - configured
+    if unknown:
+        raise ValueError(f"Unknown configured features to drop: {sorted(unknown)}")
+    numeric = tuple(name for name in NUMERIC_FEATURES if name not in dropped)
+    categorical = tuple(name for name in CATEGORICAL_FEATURES if name not in dropped)
+    if not numeric and not categorical:
+        raise ValueError("At least one configured feature must remain.")
+    return numeric, categorical
+
+
+def get_xy(
+    df: pd.DataFrame, drop_features: Iterable[str] = ()
+) -> tuple[pd.DataFrame, pd.Series]:
+    """Select configured model features and target, optionally dropping features."""
+    numeric, categorical = _selected_features(drop_features)
+    features = (*numeric, *categorical)
     _require_columns(df, (*features, TARGET))
     return df.loc[:, list(features)].copy(), df[TARGET].copy()
 
 
-def build_preprocessor() -> ColumnTransformer:
-    """Build an unfitted transformer to fit on each fold's training rows only."""
-    return ColumnTransformer(
-        transformers=[
-            ("numeric", StandardScaler(), list(NUMERIC_FEATURES)),
+def build_preprocessor(drop_features: Iterable[str] = ()) -> ColumnTransformer:
+    """Build fold-local preprocessing, optionally omitting configured features."""
+    numeric, categorical = _selected_features(drop_features)
+    transformers = []
+    if numeric:
+        transformers.append(("numeric", StandardScaler(), list(numeric)))
+    if categorical:
+        transformers.append(
             (
                 "categorical",
                 OneHotEncoder(handle_unknown="ignore"),
-                list(CATEGORICAL_FEATURES),
-            ),
-        ],
+                list(categorical),
+            )
+        )
+    return ColumnTransformer(
+        transformers=transformers,
         remainder="drop",
     )
 
