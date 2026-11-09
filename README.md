@@ -55,6 +55,10 @@ The final table-based models use:
 
 CNNs also use 32 × 32 relative-elevation terrain tiles. Tile values are centered on the location and scaled by the fixed 10-meter constant; missing raster pixels are filled with zero.
 
+**Rainfall experiment:** the saved out-of-fold diagnostic shows LightGBM scores for flooded Harvey rows falling across the listed rainfall bins. This is a training-only model diagnostic; it does not establish cause and effect.
+
+![Saved LightGBM Harvey out-of-fold scores by rainfall bin](reports/figures/harvey_score_vs_rain.png)
+
 ## 6. Validation and frozen setup
 
 - **Area-group validation:** five folds grouped by `grid_id`, so grid cells are held out from the corresponding training fold.
@@ -87,6 +91,14 @@ The following table reports the no-rainfall model variants and the terrain-only 
 
 The hybrid CNN combines the terrain tile with the table features. LightGBM without rainfall had the strongest ROC-AUC among these final-model candidates on both validation designs.
 
+![Saved area-group and leave-one-storm-out validation recall and ROC-AUC comparisons](reports/figures/validation_model_comparison.png)
+
+**Terrain CNN experiment:** the hybrid model joins the 32 × 32 terrain image with the table features. The image-only CNN uses terrain tiles alone. Training loss decreased over the fixed training epochs; loss is not a measure of held-out performance. The example panels are training terrain tiles and illustrate relative elevation, not flood depth.
+
+![CNN training loss for the first area fold](reports/figures/cnn_training_loss.png)
+
+![Examples of flooded and not-flooded training terrain tiles](reports/figures/example_tiles_full.png)
+
 ## 8. One-time final Imelda test
 
 The following are saved results at each model’s **frozen cutoff**, from `reports/final_test_results.csv`. The experiment-only terrain CNN and dummy reference are not final models and are omitted here.
@@ -99,6 +111,8 @@ The following are saved results at each model’s **frozen cutoff**, from `repor
 | CNN hybrid without rainfall | 0.47 | 0.8459 | 0.7726 | 0.8076 | 0.7950 | 0.8746 | 0.8534 |
 
 This is a single-storm result, not evidence that the models generalize to all future storms or locations. `reports/final_test.lock` prevents an accidental second run.
+
+![Saved final-model recall at frozen cutoffs and ROC-AUC](reports/figures/final_test_model_comparison.png)
 
 ## 9. SHAP findings
 
@@ -116,6 +130,18 @@ Mean absolute SHAP values for the frozen LightGBM model, from `reports/shap_feat
 | 8 | Land cover: Developed, High Intensity | 0.058367 |
 
 Built-in LightGBM split-count importance partly agrees with SHAP: the methods share two of their top three features. **SHAP shows what the model uses, not what causes flooding.** In particular, `paved_pct` is the share of the tract near major highways.
+
+![Mean absolute SHAP feature importance for the frozen LightGBM model](reports/figures/shap_lightgbm_mean_abs.png)
+
+![SHAP beeswarm for the fixed training-row sample](reports/figures/shap_lightgbm_beeswarm.png)
+
+The following dependence plots show model contributions across the observed feature values:
+
+![SHAP dependence plot for elevation](reports/figures/shap_dependence_elevation_m.png)
+
+![SHAP dependence plot for distance to bayou](reports/figures/shap_dependence_distance_to_bayou_m.png)
+
+![SHAP dependence plot for slope](reports/figures/shap_dependence_slope_degrees.png)
 
 ## 10. Limitations
 

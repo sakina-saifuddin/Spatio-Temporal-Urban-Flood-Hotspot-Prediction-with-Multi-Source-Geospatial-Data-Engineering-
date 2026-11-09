@@ -625,3 +625,16 @@ The README tables and quantitative claims were checked against
 share and rainfall medians were taken from this record's earlier documented
 results. No Imelda input file was opened, and no model was run or retrained.
 No number used in the README was left without a source.
+
+### README results charts (2026-11-09)
+
+Expanded `README.md` with embedded GitHub-rendered figures for the saved
+Harvey rainfall diagnostic, validation comparisons, CNN training/terrain
+examples, final frozen-cutoff results, and LightGBM SHAP explanations.
+Generated `reports/figures/validation_model_comparison.png` from the saved
+mean OOF rows in `reports/results.csv`, and
+`reports/figures/final_test_model_comparison.png` from the frozen final-model
+rows in `reports/final_test_results.csv`. These are static visualizations of
+saved results; no model was run or retrained and no Imelda input file was
+opened. Captions distinguish training diagnostics from final held-out
+results and reiterate that SHAP is not causal evidence.
