@@ -1,0 +1,9 @@
+validation_strategy,fold,storm,n_estimators,learning_rate,num_leaves,max_depth,min_child_samples,reg_alpha,reg_lambda
+Geographic,1,,500,0.1,15,5,50,0,1
+Geographic,2,,500,0.1,15,5,50,0,1
+Geographic,3,,500,0.1,15,5,50,0,1
+Geographic,4,,300,0.05,31,-1,20,0,1
+Geographic,5,,500,0.1,15,5,50,0,1
+Storm,1,Memorial Day Flood,500,0.1,15,5,50,0,1
+Storm,2,Tax Day Flood,300,0.05,31,-1,20,0,1
+Storm,3,Hurricane Harvey,300,0.05,63,10,50,1,0

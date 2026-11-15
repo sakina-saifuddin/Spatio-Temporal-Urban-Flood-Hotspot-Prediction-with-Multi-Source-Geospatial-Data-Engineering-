@@ -1,0 +1,6 @@
+fold,model__reg_lambda,model__reg_alpha,model__num_leaves,model__n_estimators,model__min_child_samples,model__max_depth,model__learning_rate,validation_strategy
+1,1,0,15,500,50,5,0.1,Geographic
+2,1,0,15,500,50,5,0.1,Geographic
+3,1,0,15,500,50,5,0.1,Geographic
+4,1,0,31,300,20,-1,0.05,Geographic
+5,1,0,15,500,50,5,0.1,Geographic
