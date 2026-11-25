@@ -1,0 +1,32 @@
+# FloodSense offline application data preparation
+# Verified environment: Python 3.11.0
+#
+# SHAP 0.51.0 is used instead of the original research
+# requirement of 0.54.1 for Python 3.11 compatibility.
+#
+# These dependencies are not required by the deployed app.
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Data processing and numerical computing
+pandas==3.1.1
+numpy==2.4.6
+scipy==1.17.1
+
+# Machine learning and preprocessing
+scikit-learn==1.9.1
+lightgbm==4.7.0
+
+# Explainable artificial intelligence
+shap==0.51.0
+numba==0.68.1
+llvmlite==0.50.0
+slicer==0.0.8
+tqdm==4.70.1
+
+# Application data exports
+pyarrow==26.0.1
+
+# Existing research module compatibility
+matplotlib==3.11.2
+torch==2.15.0+cpu
