@@ -13,3 +13,7 @@ node_modules/
 dist/
 build/
 data/marvin
+
+# Local Streamlit secrets and notebook checkpoints
+.streamlit/secrets.toml
+.ipynb_checkpoints/
