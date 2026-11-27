@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FloodSense 2.0</title>
+  <meta name="description" content="FloodSense 2.0: explore which parts of Houston look like places that flooded in past storms, and why. Guided by Scout.">
+  <!-- Tab icon: Scout cut out of the square background (transparent PNG) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+  <link rel="apple-touch-icon" href="assets/favicon-180.png">
+  <!-- Leaflet: the open-source library that draws the interactive map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <!-- Rounded, friendly fonts to match Scout: Fredoka for headings, Nunito for text -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=19">
+</head>
+<body>
+  <!-- Line icons (drawn as SVG so they stay crisp and match the text color) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 8a3.5 3.5 0 0 1 0 7z"/><path d="m8 18-1 2M12 18l-1 2M16 18l-1 2"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M5 21V4h9v17M14 9h5v12M3 21h18M8 8h3M8 12h3M8 16h3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  </svg>
+  <!-- ================= Top bar ================= -->
+  <header class="topbar">
+    <button class="brand" id="brand" title="Meet Scout again">
+      <img src="assets/scout.png" alt="Scout, a water droplet in a cowboy hat" class="avatar">
+      <span>
+        <strong>FloodSense <span class="ver">2.0</span></strong>
+        <small>Houston's past flood spots, explained by Scout</small>
+      </span>
+    </button>
+
+    <!-- Three tabs: the map, the project story, and how it was built -->
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" data-view="map" aria-selected="true"><svg class="i" aria-hidden="true"><use href="#i-map"></use></svg>Flood Map</button>
+      <button class="tab" role="tab" data-view="project" aria-selected="false"><svg class="i" aria-hidden="true"><use href="#i-doc"></use></svg>The Project</button>
+      <button class="tab" role="tab" data-view="build" aria-selected="false"><svg class="i" aria-hidden="true"><use href="#i-layers"></use></svg>How We Built It</button>
+    </nav>
+
+    <form class="search" id="search" role="search" autocomplete="off">
+      <input id="search-input" type="search" placeholder="Search a place or address in Houston…" aria-label="Search a place or address">
+      <button type="submit" aria-label="Search"><svg class="i" aria-hidden="true"><use href="#i-search"></use></svg></button>
+      <ul id="search-results" class="search-results hidden" role="listbox"></ul>
+    </form>
+  </header>
+
+  <div class="layout view" id="view-map">
+    <!-- ================= Sidebar ================= -->
+    <aside class="sidebar">
+      <!-- Scout's speech bubble changes as you use the map -->
+      <div class="scout-says">
+        <img src="assets/scout.png" alt="" class="avatar small">
+        <p id="scout-msg" class="bubble"></p>
+      </div>
+
+      <!-- Filled in when you click a dot, the map, a hotspot or a search result -->
+      <section id="spot-panel" class="panel spot-panel hidden" aria-live="polite">
+        <h2><svg class="i" aria-hidden="true"><use href="#i-pin"></use></svg>Selected spot</h2>
+        <div id="spot-info"></div>
+        <div id="spot-history"></div>
+      </section>
+
+      <!-- Flood photos near the selected street, or an aerial photo of it -->
+      <section id="photo-panel" class="panel photo-panel hidden" aria-live="polite">
+        <h2><svg class="i" aria-hidden="true"><use href="#i-camera"></use></svg>Street photos</h2>
+        <div id="photo-body"></div>
+      </section>
+
+      <!-- Shown while a storm is selected (pick one from the bar on the map) -->
+      <section class="panel storm-panel hidden" id="storm-panel">
+        <h2><svg class="i" aria-hidden="true"><use href="#i-rain"></use></svg><span id="storm-panel-title">Past storm</span></h2>
+        <div id="storm-info" class="storm-info"></div>
+      </section>
+
+      <section class="panel">
+        <h2><svg class="i" aria-hidden="true"><use href="#i-target"></use></svg>Top 10 hotspots</h2>
+        <p class="hint">Areas whose land looks most like past flood spots.</p>
+        <ol id="hotspots" class="hotspots"></ol>
+      </section>
+
+      <p class="disclaimer">Research estimates from past storms (2015–2019). <b>Not a flood forecast</b> or official warning. In an emergency, call 911.</p>
+    </aside>
+
+    <!-- ================= Map ================= -->
+    <main class="map-wrap">
+      <div id="map" aria-label="Map of Houston flood susceptibility"></div>
+
+      <!-- Floating storm picker: the main control, always visible on the map -->
+      <div class="storm-bar" role="group" aria-label="Show a past storm">
+        <span class="storm-bar-label"><svg class="i" aria-hidden="true"><use href="#i-rain"></use></svg>Show a past storm</span>
+        <div class="chips" id="storm-chips"></div>
+      </div>
+
+      <!-- Compact legend; the ▾ button hides the explanation to free up map space -->
+      <section class="legend" id="legend" aria-label="Legend">
+        <button class="legend-toggle" id="legend-toggle" aria-expanded="true" title="Show or hide the legend details">
+          <span><b>Color</b> = how much the land looks like past flood spots</span><span class="chev">▾</span>
+        </button>
+        <div id="legend-items"></div>
+        <div class="legend-more">
+          <div id="legend-storm" class="legend-row hidden"><span class="dot"></span><span><b>Dot</b> = a 311 flood report in <span id="legend-storm-name"></span></span></div>
+          <div class="legend-row"><span class="water"></span><span><b>Blue street</b> = flooding reported there (click a dot)</span></div>
+          <p class="legend-note">No color = not sampled · scroll to zoom</p>
+        </div>
+      </section>
+
+      <!-- Tip shown while a storm is selected -->
+      <div id="dot-hint" class="map-hint hidden" role="note">
+        <svg class="i" aria-hidden="true"><use href="#i-pin"></use></svg>
+        <span>Each dot is a 311 flood report. <b>Hover</b> one to see the street, <b>click</b> to zoom in.</span>
+      </div>
+      <aside id="card" class="card hidden" aria-live="polite"></aside>
+    </main>
+  </div>
+
+  <!-- ================= Tab 2: The Project (motivation + data), told as short steps ================= -->
+  <section class="page view hidden" id="view-project" aria-label="The Project">
+    <div class="page-inner">
+      <header class="page-hero">
+        <p class="eyebrow">The Project</p>
+        <h1>Why we built FloodSense</h1>
+        <p class="lead">Houston floods again and again. We used real flood reports and public land data to show which areas look like the places that flooded before, and why.</p>
+      </header>
+
+      <!-- Step 1 -->
+      <section class="story">
+        <div class="story-num">1</div>
+        <div class="story-body">
+          <h2>The problem</h2>
+          <p>Four major floods hit Houston in five years. During each one, people called the city's <b>311</b> line to report flooding, but nobody turned those calls into a simple map residents can read.</p>
+          <div class="pill-row">
+            <span class="pill"><b>2015</b> Memorial Day Flood</span>
+            <span class="pill"><b>2016</b> Tax Day Flood</span>
+            <span class="pill"><b>2017</b> Hurricane Harvey</span>
+            <span class="pill"><b>2019</b> Tropical Storm Imelda</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="story">
+        <div class="story-num">2</div>
+        <div class="story-body">
+          <h2>Our question</h2>
+          <blockquote class="question">Does a place's land look like a flood hotspot, and what makes it look that way?</blockquote>
+          <div class="who-grid">
+            <div><b><svg class="i" aria-hidden="true"><use href="#i-home"></use></svg>Residents</b><span>Check their own area.</span></div>
+            <div><b><svg class="i" aria-hidden="true"><use href="#i-building"></use></svg>City planners</b><span>Prioritize drainage work.</span></div>
+            <div><b><svg class="i" aria-hidden="true"><use href="#i-shield"></use></svg>First responders</b><span>Know repeat trouble spots.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="story">
+        <div class="story-num">3</div>
+        <div class="story-body">
+          <h2>The data we used</h2>
+          <p>Five public datasets, all lined up on one map grid:</p>
+          <div class="source-row">
+            <div class="source"><b>311 flood reports</b><span>where flooding was reported</span><small>City of Houston</small></div>
+            <div class="source"><b>Elevation (1 m)</b><span>elevation &amp; slope</span><small>USGS</small></div>
+            <div class="source"><b>Streams &amp; bayous</b><span>distance to water</span><small>USGS NHD</small></div>
+            <div class="source"><b>Land cover</b><span>type of development</span><small>NLCD</small></div>
+            <div class="source"><b>Major highways</b><span>closeness to highways</span><small>OpenStreetMap</small></div>
+          </div>
+          <p class="fine">We also tested rainfall (NOAA), but left it out: it varied too much between storms and made results inconsistent.</p>
+        </div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="story">
+        <div class="story-num">4</div>
+        <div class="story-body">
+          <h2>How many rows</h2>
+          <p>Each row is one location during one storm: either a <b>flooded</b> spot (a 311 report) or a <b>nearby spot with no report</b>, roughly half and half.</p>
+          <div class="funnel">
+            <div class="funnel-row"><span class="funnel-label">Raw training rows (2015–2017)</span><span class="funnel-bar" style="--w:100%"><b>85,738</b></span></div>
+            <div class="funnel-row"><span class="funnel-label">After removing duplicates</span><span class="funnel-bar" style="--w:89.7%"><b>76,875</b></span></div>
+            <div class="funnel-row"><span class="funnel-label">Clean training set</span><span class="funnel-bar strong" style="--w:77.6%"><b>66,514</b></span></div>
+            <div class="funnel-row"><span class="funnel-label">Hidden test set (Imelda 2019)</span><span class="funnel-bar test" style="--w:22.4%"><b>19,164</b></span></div>
+          </div>
+          <details class="more">
+            <summary>See the details</summary>
+            <h3>Rows per storm</h3>
+            <table class="tbl">
+              <thead><tr><th>Storm</th><th>Used for</th><th class="num">Flooded</th><th class="num">Total rows</th></tr></thead>
+              <tbody>
+                <tr><td>Memorial Day Flood 2015</td><td>Training</td><td class="num">10,998</td><td class="num">21,780</td></tr>
+                <tr><td>Tax Day Flood 2016</td><td>Training</td><td class="num">11,124</td><td class="num">21,850</td></tr>
+                <tr><td>Hurricane Harvey 2017</td><td>Training</td><td class="num">11,833</td><td class="num">22,884</td></tr>
+                <tr class="hl-row"><td>Tropical Storm Imelda 2019</td><td><span class="badge">Final test</span></td><td class="num">9,746</td><td class="num">19,164</td></tr>
+              </tbody>
+            </table>
+            <h3>Cleaning steps</h3>
+            <table class="tbl">
+              <thead><tr><th>Step</th><th class="num">Removed</th><th class="num">Rows left</th></tr></thead>
+              <tbody>
+                <tr><td>Remove duplicate location + storm rows</td><td class="num">8,863</td><td class="num">76,875</td></tr>
+                <tr><td>Keep only developed land for "no report" spots</td><td class="num">10,310</td><td class="num">66,565</td></tr>
+                <tr><td>Drop "flooded" spots outside developed land</td><td class="num">51</td><td class="num">66,514</td></tr>
+              </tbody>
+            </table>
+            <p class="fine">The Imelda test set went through the same steps (24,852 → 19,164). Every location also got a ~1 km grid ID (4,492 squares).</p>
+          </details>
+        </div>
+      </section>
+
+      <!-- Step 5 -->
+      <section class="story">
+        <div class="story-num">5</div>
+        <div class="story-body">
+          <h2>What we found</h2>
+          <div id="about-stats" class="stats"></div>
+          <p>Prior work on Houston 311 data reached about 80% accuracy. FloodSense matched it on a storm it had never seen.</p>
+          <details class="more">
+            <summary>What the map can't tell you</summary>
+            <ul class="limits">
+              <li><b>It's not a forecast.</b> It shows which land looks vulnerable, not how a future storm will go.</li>
+              <li><b>It's not about your exact house.</b> Scores are averages over ~1 km areas.</li>
+              <li><b>311 reports aren't every flood.</b> No report doesn't prove no flooding.</li>
+              <li><b>One test storm.</b> Imelda is a single storm, mostly in areas seen during training.</li>
+            </ul>
+            <p>For official information: <a href="https://www.harriscountyfws.org/" target="_blank" rel="noopener">Harris County Flood Warning System</a> · <a href="https://www.weather.gov/hgx/" target="_blank" rel="noopener">NWS Houston</a> · <a href="https://msc.fema.gov/portal/search" target="_blank" rel="noopener">FEMA flood maps</a></p>
+          </details>
+        </div>
+      </section>
+
+      <p class="page-foot"><button class="btn-primary" data-goto="build">Next: How we built it →</button></p>
+    </div>
+  </section>
+
+  <!-- ================= Tab 3: How We Built It, as a 5-step flow ================= -->
+  <section class="page view hidden" id="view-build" aria-label="How We Built It">
+    <div class="page-inner">
+      <header class="page-hero">
+        <p class="eyebrow">How We Built It</p>
+        <h1>From raw 311 calls to a live flood map</h1>
+        <p class="lead">Five steps. Each one has a short summary; open "See the details" for the full numbers.</p>
+      </header>
+
+      <!-- At-a-glance flow -->
+      <ol class="flow">
+        <li><span>Data</span><b>66,514</b><small>training rows</small></li>
+        <li><span>Split</span><b>3</b><small>ways to test</small></li>
+        <li><span>Train</span><b>8</b><small>models compared</small></li>
+        <li><span>Test</span><b>87%</b><small>floods caught</small></li>
+        <li><span>Explain</span><b>SHAP</b><small>why, for every spot</small></li>
+      </ol>
+
+      <section class="story">
+        <div class="story-num">1</div>
+        <div class="story-body">
+          <h2>Data</h2>
+          <p><b>66,514 rows</b> from three storms (2015–2017), each with <b>5 land features</b>: elevation, slope, distance to bayou, land cover and closeness to highways. Built in 12 step-by-step Jupyter notebooks.</p>
+        </div>
+      </section>
+
+      <section class="story">
+        <div class="story-num">2</div>
+        <div class="story-body">
+          <h2>Split</h2>
+          <p>We tested the models three ways so the scores are honest:</p>
+          <div class="split-grid">
+            <div class="split"><h3><svg class="i" aria-hidden="true"><use href="#i-map"></use></svg>New places</h3><p>Hold out whole ~1 km areas (5 folds).</p></div>
+            <div class="split"><h3><svg class="i" aria-hidden="true"><use href="#i-rain"></use></svg>New storms</h3><p>Train on 2 storms, test on the 3rd.</p></div>
+            <div class="split star"><h3><svg class="i" aria-hidden="true"><use href="#i-lock"></use></svg>Final test</h3><p>Imelda 2019, hidden until the end, run once.</p></div>
+          </div>
+          <details class="more">
+            <summary>See the details</summary>
+            <p>Area-group 5-fold cross-validation grouped rows by grid ID; leave-one-storm-out used 3 folds. Scaling and one-hot encoding were fitted inside each training fold only, so nothing leaked from test rows. Each model's cutoff is the highest one that still catches at least 85% of flooded spots in the area folds (LightGBM: 0.50). All choices were frozen before the Imelda test, and a lock file prevents running it twice.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="story">
+        <div class="story-num">3</div>
+        <div class="story-body">
+          <h2>Train</h2>
+          <p>We compared <b>8 models</b>, from simple to deep learning. <b>LightGBM</b> scored best on both new places and new storms, so it powers the map.</p>
+          <div class="model-chips">
+            <span>Dummy baseline</span><span>Logistic regression</span><span>Random Forest</span><span>XGBoost</span>
+            <span class="win">LightGBM <span class="badge">Chosen</span></span><span>Neural network (MLP)</span><span>CNN (terrain image)</span><span>CNN hybrid</span>
+          </div>
+          <details class="more">
+            <summary>See the details</summary>
+            <table class="tbl">
+              <thead><tr><th>Model</th><th class="num">Recall<br><small>places / storms</small></th><th class="num">Precision<br><small>places / storms</small></th><th class="num">ROC-AUC<br><small>places / storms</small></th></tr></thead>
+              <tbody>
+                <tr><td>Logistic regression</td><td class="num">0.79 / 0.79</td><td class="num">0.70 / 0.70</td><td class="num">0.78 / 0.78</td></tr>
+                <tr><td>Random Forest</td><td class="num">0.79 / 0.86</td><td class="num">0.79 / 0.80</td><td class="num">0.87 / 0.90</td></tr>
+                <tr><td>XGBoost</td><td class="num">0.84 / 0.88</td><td class="num">0.80 / 0.80</td><td class="num">0.89 / 0.90</td></tr>
+                <tr class="hl-row"><td><b>LightGBM</b> <span class="badge">Chosen</span></td><td class="num"><b>0.85 / 0.88</b></td><td class="num"><b>0.80 / 0.81</b></td><td class="num"><b>0.89 / 0.90</b></td></tr>
+                <tr><td>Neural network (MLP)</td><td class="num">0.83 / 0.82</td><td class="num">0.75 / 0.76</td><td class="num">0.85 / 0.85</td></tr>
+                <tr><td>CNN, terrain image only</td><td class="num">0.73 / 0.82</td><td class="num">0.71 / 0.67</td><td class="num">0.77 / 0.77</td></tr>
+                <tr><td>CNN hybrid (image + table)</td><td class="num">0.83 / 0.85</td><td class="num">0.79 / 0.78</td><td class="num">0.88 / 0.88</td></tr>
+              </tbody>
+            </table>
+            <p class="fine">Mean validation scores, no-rainfall versions, default 0.5 cutoff. The dummy baseline just predicts the overall share of flooded spots.</p>
+            <h3>Settings</h3>
+            <p>LightGBM: 300 trees, learning rate 0.1. MLP: layers of 64 and 32, dropout 0.2, Adam 0.001, 25 epochs. CNNs: 3 conv layers (16/32/64), 32×32 terrain tiles, 20 epochs. All with random seed 42.</p>
+            <h3>Tuning experiment</h3>
+            <p>A RandomizedSearchCV over 7 LightGBM settings (2,916 combinations, 20 sampled per search) inside nested cross-validation did not beat the original model on any of 12 average scores, so we kept the original.</p>
+            <figure><img src="assets/figures/validation_model_comparison.png" alt="Validation recall and ROC-AUC for each model" loading="lazy"><figcaption>Validation results for every model.</figcaption></figure>
+          </details>
+        </div>
+      </section>
+
+      <section class="story">
+        <div class="story-num">4</div>
+        <div class="story-body">
+          <h2>Test</h2>
+          <div class="big-result"><b>87</b><span>out of every 100 flooded spots during Tropical Storm Imelda were caught, on a storm the model had never seen. Overall accuracy: <b>82%</b>.</span></div>
+          <details class="more">
+            <summary>See the details</summary>
+            <table class="tbl">
+              <thead><tr><th>Model</th><th class="num">Cutoff</th><th class="num">Recall</th><th class="num">Precision</th><th class="num">Accuracy</th><th class="num">ROC-AUC</th></tr></thead>
+              <tbody>
+                <tr><td>Logistic regression</td><td class="num">0.44</td><td class="num">0.81</td><td class="num">0.66</td><td class="num">0.69</td><td class="num">0.75</td></tr>
+                <tr class="hl-row"><td><b>LightGBM</b> <span class="badge">Chosen</span></td><td class="num">0.50</td><td class="num"><b>0.87</b></td><td class="num"><b>0.80</b></td><td class="num"><b>0.82</b></td><td class="num"><b>0.89</b></td></tr>
+                <tr><td>Neural network (MLP)</td><td class="num">0.47</td><td class="num">0.84</td><td class="num">0.74</td><td class="num">0.77</td><td class="num">0.84</td></tr>
+                <tr><td>CNN hybrid</td><td class="num">0.47</td><td class="num">0.85</td><td class="num">0.77</td><td class="num">0.80</td><td class="num">0.87</td></tr>
+              </tbody>
+            </table>
+            <figure><img src="assets/figures/final_test_model_comparison.png" alt="Final Imelda test results at frozen cutoffs" loading="lazy"><figcaption>One-time Imelda test at each model's frozen cutoff.</figcaption></figure>
+          </details>
+        </div>
+      </section>
+
+      <section class="story">
+        <div class="story-num">5</div>
+        <div class="story-body">
+          <h2>Explain</h2>
+          <p>SHAP shows which features push each prediction up or down. This is what powers the "why" on the map. The biggest factors:</p>
+          <ol class="rank">
+            <li><b>Elevation</b><span style="--w:100%"></span><small>1.33</small></li>
+            <li><b>Near major highways</b><span style="--w:54%"></span><small>0.72</small></li>
+            <li><b>Terrain slope</b><span style="--w:49%"></span><small>0.65</small></li>
+          </ol>
+          <details class="more">
+            <summary>See the details</summary>
+            <ol class="rank" start="4">
+              <li><b>Land cover (low-intensity)</b><span style="--w:15%"></span><small>0.19</small></li>
+              <li><b>Distance to bayou</b><span style="--w:11%"></span><small>0.15</small></li>
+            </ol>
+            <p class="fine">Mean absolute SHAP value (log-odds). SHAP shows what the model relies on, not what causes flooding.</p>
+            <figure><img src="assets/figures/shap_lightgbm_mean_abs.png" alt="Mean absolute SHAP feature importance for LightGBM" loading="lazy"><figcaption>Feature importance for the final LightGBM model.</figcaption></figure>
+          </details>
+        </div>
+      </section>
+
+      <h2 class="stack-title">Built with</h2>
+      <div class="stack-chips">
+        <span>Python</span><span>pandas</span><span>NumPy</span><span>rasterio</span><span>scikit-learn</span><span>LightGBM</span><span>XGBoost</span><span>PyTorch</span><span>SHAP</span><span>Jupyter</span><span>Leaflet</span><span>JavaScript</span><span>OpenStreetMap</span><span>Git &amp; GitHub</span>
+      </div>
+
+      <p class="page-foot"><button class="btn-primary" data-goto="map">← Back to the map</button></p>
+    </div>
+  </section>
+
+  <!-- ================= Welcome (first visit) ================= -->
+  <div id="welcome" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="modal-box welcome">
+      <img src="assets/scout.png" alt="Scout, a water droplet in a cowboy hat" class="welcome-scout">
+      <h2 id="welcome-title">Howdy, I'm Scout!</h2>
+      <p>Welcome to <b>FloodSense 2.0</b>. I'll show you which parts of Houston have land that looks like places that flooded in past storms, and explain why.</p>
+      <ol class="steps">
+        <li><b>Read the colors.</b> Green = low, red = very high.</li>
+        <li><b>Click anywhere</b> and I'll tell you why that area got its color.</li>
+        <li><b>Pick a storm</b> to see where people actually reported flooding.</li>
+      </ol>
+      <p class="fine">This map is based on past storms. It's not a forecast or an official warning.</p>
+      <button class="btn-primary" id="welcome-go">Let's explore!</button>
+    </div>
+  </div>
+
+  <script src="app.js?v=27"></script>
+</body>
+</html>

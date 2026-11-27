@@ -17,3 +17,6 @@ data/marvin
 # Local Streamlit secrets and notebook checkpoints
 .streamlit/secrets.toml
 .ipynb_checkpoints/
+
+# Netlify CLI local state
+.netlify/
