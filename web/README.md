@@ -51,11 +51,8 @@ Open http://localhost:8000. (Opening `index.html` directly doesn't work because 
 
 - Live: https://floodsense-2.netlify.app
 - Netlify project: `floodsense-2` (admin: https://app.netlify.com/projects/floodsense-2)
+- **Auto-deploy:** Netlify is linked to this GitHub repo. Every push to `main` is deployed automatically
+  (settings come from `netlify.toml` at the repo root: base `web/`, no build step).
 
-Redeploy after changes (from the repository root, with the Netlify CLI logged in):
-
-```bash
-netlify deploy --prod --dir web --site floodsense-2
-```
-
-Bump the `?v=` numbers on `style.css` / `app.js` in `index.html` when they change, so browsers fetch the new files.
+When you change the site, bump the `?v=` numbers on `style.css` / `app.js` in `index.html` so browsers fetch the
+new files, then commit and push to `main`.
