@@ -86,8 +86,7 @@ streets.on("tileerror", () => {
 function applyGlowOpacity() {
   const z = map.getZoom();
   const base = z >= 15 ? 0.35 : z >= 13 ? 0.5 : 1;
-  state.glow?.setOpacity(state.repeatLayer ? base * 0.3 : base);   // fade the score colors under the repeat view
-  state.repeatLayer?.setOpacity(z >= 15 ? 0.6 : z >= 13 ? 0.8 : 1);
+  state.glow?.setOpacity(state.repeatLayer ? base * 0.6 : base);   // soften the score colors under the pins
 }
 map.on("zoomend", applyGlowOpacity);
 
@@ -705,13 +704,11 @@ function hoverDotOff(dot) {
 const shortName = (n) => n.replace("Tropical Storm ", "").replace("Hurricane ", "").replace(" Flood", "");
 
 // =====================================================================
-// 5b. Repeat flooding: areas with 311 flood reports in 2, 3 or all 4 storms (purple glow)
+// 5b. Repeat flooding: numbered pins on the 20 areas with the most 311 flood reports
+//     across all 4 storms (spread at least 2.5 km apart), plus a sidebar summary.
 // =====================================================================
-const REPEAT_COLORS = { 2: [167, 139, 250, 70], 3: [124, 58, 237, 105], 4: [91, 33, 182, 140] };   // see-through so streets show
-
-function repeatPixel(c) {
-  return REPEAT_COLORS[Object.keys(c.reports).length] || null;   // 0–1 storms stay transparent
-}
+const STORM_SHORT = { 2015: "Memorial Day ’15", 2016: "Tax Day ’16", 2017: "Harvey ’17", 2019: "Imelda ’19" };
+const areaName = (t) => (t.name && t.name !== "Houston" ? t.name : `Area near ${t.lat.toFixed(3)}, ${t.lon.toFixed(3)}`);
 
 function clearRepeat() {
   if (!state.repeatLayer) return;
@@ -722,43 +719,66 @@ function clearRepeat() {
   applyGlowOpacity();
 }
 
+// Small bar chart of an area's reports in each storm (used in the pin tooltip)
+function stormBars(byStorm) {
+  const max = Math.max(...Object.values(byStorm), 1);
+  return Object.entries(byStorm).map(([y, n]) => `
+    <div class="sb-row"><span>${STORM_SHORT[y]}</span><span class="sb-bar" style="width:${Math.max(4, Math.round((n / max) * 100))}%"></span><b>${n}</b></div>`).join("");
+}
+
 function showRepeat() {
   showStorm(null);                                   // clear any storm dots first
-  state.repeatLayer = paintGlow(state.cells, repeatPixel).addTo(map);
+  const { by_count: counts, top } = state.repeat;
+  const maxReports = Math.max(...top.map((t) => t.reports));
+
+  // Numbered pins: bigger = more flood reports in total
+  const pins = top.map((t, i) => {
+    const size = Math.round(26 + 16 * (t.reports / maxReports));
+    const pin = L.marker([t.lat, t.lon], {
+      icon: L.divIcon({ className: "rep-pin-wrap", html: `<div class="rep-pin" style="--s:${size}px">${i + 1}</div>`, iconSize: [size, size] }),
+      riseOnHover: true, keyboard: false,
+    });
+    pin.bindTooltip(`
+      <div class="rt-name">${i + 1}. ${esc(areaName(t))}</div>
+      <div class="rt-sub">Flooded in all 4 storms · <b>${t.reports}</b> reports</div>
+      <div class="sb">${stormBars(t.by_storm)}</div>
+      <div class="dt-hint">Click to zoom in</div>`, { direction: "top", offset: [0, -size / 2], className: "rep-tip", opacity: 1 });
+    pin.on("click", () => selectCell(t.id, { fly: true, label: `#${i + 1} ${areaName(t)} · flooded in all 4 storms` }));
+    return pin;
+  });
+  state.repeatLayer = L.layerGroup(pins).addTo(map);
   applyGlowOpacity();
+  map.flyToBounds(L.latLngBounds(top.map((t) => [t.lat, t.lon])), { padding: [70, 70], duration: 0.9 });
   document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.year === "repeat")));
   document.getElementById("legend-repeat").classList.remove("hidden");
 
-  const { by_count: counts, top } = state.repeat;
   const all4 = counts.find((x) => x.storms === 4);
   const maxScore = Math.max(...counts.map((x) => x.avg_score));
-  // Top areas, one per neighborhood name
-  const seen = new Set();
-  const list = top.filter((t) => { const k = t.name || t.id; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
-
   document.getElementById("repeat-info").innerHTML = `
     <div class="big">${all4.areas.toLocaleString()} <span>areas</span></div>
-    <p>had 311 flood reports in <b>all 4 storms</b>: the same places, flooding again and again.</p>
-    <p class="result-head" style="margin-top:12px">Average flood-likeness score</p>
+    <p>had 311 flood reports in <b>all 4 storms</b>: the same places, flooding again and again. The numbered pins mark the 20 worst.</p>
+    <p class="result-head" style="margin-top:12px">Top 20: most reports across all 4 storms</p>
+    <ol class="rep-list">${top.map((t, i) => `
+      <li><button data-i="${i}"><b class="rep-num">${i + 1}</b><span>${esc(areaName(t))}</span><small>${t.reports}</small></button></li>`).join("")}
+    </ol>
+    <p class="result-head" style="margin-top:14px">Average flood-likeness score</p>
     <div class="rep-chart">
       ${[...counts].reverse().map((x) => `
         <div class="rep-row"><span>${x.storms === 0 ? "No reports" : `${x.storms} storm${x.storms > 1 ? "s" : ""}`}</span>
           <span class="rep-bar s${x.storms}" style="width:${Math.round((x.avg_score / maxScore) * 100)}%"></span>
           <b>${x.avg_score.toFixed(2)}</b></div>`).join("")}
     </div>
-    <p class="fine">The more storms an area flooded in, the higher the model scored its land, even though the model only looks at the land.</p>
-    <p class="result-head" style="margin-top:12px">Flooded in every storm</p>
-    <ol class="rep-list">${list.map((t) => `
-      <li><button data-id="${esc(t.id)}" data-name="${esc(t.name || "")}"><span>${esc(t.name || `Near ${t.lat.toFixed(2)}, ${t.lon.toFixed(2)}`)}</span><small>${t.reports} reports</small></button></li>`).join("")}
-    </ol>`;
+    <p class="fine">The more storms an area flooded in, the higher the model scored its land, even though the model only looks at the land.</p>`;
   document.getElementById("repeat-panel").classList.remove("hidden");
   document.getElementById("repeat-panel").scrollIntoView({ block: "nearest", behavior: "smooth" });
-  scout("Purple shows <b>repeat flooding</b>: the darker the purple, the more of the 4 storms had 311 flood reports there. Click an area to see its reports for each storm.");
+  scout("The <b>numbered pins</b> are the 20 areas that flooded in <b>every one of the 4 storms</b> and had the most reports. <b>Hover</b> a pin to see each storm, <b>click</b> to zoom in.");
 }
 
 document.getElementById("repeat-info").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-id]");
-  if (b) selectCell(b.dataset.id, { fly: true, label: `${b.dataset.name || "This area"} · flooded in all 4 storms` });
+  const b = e.target.closest("button[data-i]");
+  if (!b) return;
+  const t = state.repeat.top[Number(b.dataset.i)];
+  selectCell(t.id, { fly: true, label: `#${Number(b.dataset.i) + 1} ${areaName(t)} · flooded in all 4 storms` });
 });
 
 // =====================================================================

@@ -22,8 +22,9 @@ Open http://localhost:8000. (Opening `index.html` directly doesn't work because 
   311 reports per storm, and the land features
 - **Past storms** (floating bar on the map): a small dot for every 311 flood-report location (Memorial Day 2015, Tax Day 2016, Harvey 2017,
   Imelda 2019). Hover a dot for its street name; click it to zoom in, drop a pin and open the area card
-- **Repeat flooding** (storm bar): purple glow for areas with 311 reports in 2, 3 or all 4 storms (928 areas in all 4),
-  average model score by number of storms (0.11 → 0.66), and the top repeat-flooding neighborhoods
+- **Repeat flooding** (storm bar): numbered pins on the 20 areas that flooded in all 4 storms with the most reports
+  (≥ 2.5 km apart; hover = reports per storm), plus 928 areas flooded in all 4 storms and the average model score by
+  number of storms (0.11 → 0.66)
 - **Top 10 hotspots**: highest-scoring well-sampled areas (≥ 5 sampled spots), click to fly there
 - **Place search**: OpenStreetMap Nominatim, limited to the Houston area; unsampled places say so honestly
 - **Blue flood on the street**: clicking a report dot zooms to street level; once the zoom ends, water spreads along

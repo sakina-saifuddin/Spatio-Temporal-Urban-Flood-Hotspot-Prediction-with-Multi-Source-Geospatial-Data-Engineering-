@@ -748,3 +748,33 @@ body:not([data-view="map"]) .search { visibility: hidden; }
 .rep-list small { color: #6d28d9; font-weight: 600; white-space: nowrap; }
 .rep-swatch { width: 18px; height: 10px; margin-top: 4px; flex-shrink: 0; border-radius: 3px; background: linear-gradient(90deg, #a78bfa, #7c3aed, #4c1d95); }
 #legend-repeat { margin-top: 6px; font-size: 0.74rem; align-items: flex-start; }
+
+/* ================= Repeat flooding: numbered pins ================= */
+.rep-pin-wrap { background: none; border: none; }
+.rep-pin {
+  width: var(--s); height: var(--s); border-radius: 50%;
+  display: grid; place-items: center;
+  background: #5b21b6; color: #fff; border: 3px solid var(--star);
+  font-family: "Fredoka", sans-serif; font-weight: 600; font-size: calc(var(--s) * 0.42);
+  box-shadow: 0 3px 10px rgba(30, 10, 60, 0.45);
+  transition: transform .15s;
+}
+.rep-pin:hover { transform: scale(1.15); }
+.rep-pin-mini {
+  width: 18px; height: 18px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+  background: #5b21b6; color: #fff; border: 2px solid var(--star); font-size: 0.6rem; font-weight: 800;
+}
+.leaflet-tooltip.rep-tip { font-family: inherit; padding: 10px 12px; border-radius: 12px; border: none; box-shadow: var(--shadow); min-width: 230px; white-space: normal; }
+.rt-name { font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 0.98rem; color: #4c1d95; }
+.rt-sub { font-size: 0.78rem; color: var(--muted); margin: 2px 0 8px; }
+.sb-row { display: grid; grid-template-columns: 96px 1fr 30px; align-items: center; gap: 6px; font-size: 0.76rem; margin-bottom: 3px; }
+.sb-bar { height: 8px; border-radius: 4px; background: #7c3aed; }
+.sb-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.rep-list { max-height: 260px; overflow-y: auto; scrollbar-width: thin; }
+.rep-list button { justify-content: flex-start; }
+.rep-list button span { flex: 1; }
+.rep-num {
+  width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+  background: #5b21b6; color: #fff; font-size: 0.72rem;
+}
+.legend.collapsed { max-width: 250px; }   /* keep the folded legend narrow so it never covers the pins */

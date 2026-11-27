@@ -29,6 +29,8 @@ NAME_CACHE = Path(__file__).resolve().parent / "place_names_cache.json"
 
 STORMS = {2015: "Memorial Day Flood", 2016: "Tax Day Flood", 2017: "Hurricane Harvey", 2019: "Tropical Storm Imelda"}
 HOTSPOT_MIN_SAMPLES = 5  # ignore thinly sampled cells when ranking hotspots
+REPEAT_TOP_N = 20        # numbered repeat-flooding pins on the map
+REPEAT_SPACING_KM = 2.5  # minimum distance between those pins
 
 
 def write(name: str, data) -> None:
@@ -97,7 +99,7 @@ def build_storms() -> list[dict]:
 def place_name(lat: float, lon: float, cache: dict) -> str:
     """Reverse-geocode a cell center to a neighborhood name (OpenStreetMap Nominatim), cached on disk."""
     key = f"{lat:.4f},{lon:.4f}"
-    if key in cache:
+    if cache.get(key):          # cached names are reused; empty ones are looked up again
         return cache[key]
     query = urllib.parse.urlencode({"lat": lat, "lon": lon, "format": "jsonv2", "zoom": 15})
     req = urllib.request.Request(
@@ -108,7 +110,7 @@ def place_name(lat: float, lon: float, cache: dict) -> str:
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             addr = json.load(resp).get("address", {})
-        parts = [addr.get(k) for k in ("neighbourhood", "suburb", "quarter", "road") if addr.get(k)]
+        parts = [addr.get(k) for k in ("neighbourhood", "suburb", "quarter", "city_district", "town", "village", "road", "city") if addr.get(k)]
         name = parts[0] if parts else ""
     except Exception as exc:  # offline or rate-limited: fall back to coordinates
         print(f"    reverse geocode failed for {key}: {exc}")
@@ -139,12 +141,24 @@ def build_repeat(grid: pd.DataFrame, hist: pd.DataFrame) -> dict:
         {"storms": n, "areas": int((g.storms == n).sum()), "avg_score": round(float(g.loc[g.storms == n, "mean_score"].mean()), 2)}
         for n in range(5)
     ]
+    # Top repeat-flooding areas: flooded in all 4 storms, most reports first, at least REPEAT_SPACING_KM apart
+    # so the pins mark different places rather than neighbouring squares of the same neighbourhood.
+    per_storm = hist[hist.report_positive_count > 0].pivot_table(
+        index="grid_id", columns="year", values="report_positive_count", aggfunc="sum", fill_value=0)
     cache = json.loads(NAME_CACHE.read_text(encoding="utf-8")) if NAME_CACHE.exists() else {}
-    top = g[g.storms == 4].nlargest(10, "reports")
+    picked = []
+    for gid, r in g[g.storms == 4].sort_values("reports", ascending=False).iterrows():
+        if any(((r.center_lat - q.center_lat) * 111) ** 2 + ((r.center_lon - q.center_lon) * 96.5) ** 2 < REPEAT_SPACING_KM ** 2
+               for _, q in picked):
+            continue
+        picked.append((gid, r))
+        if len(picked) == REPEAT_TOP_N:
+            break
     top_areas = [
         {"id": gid, "lat": r.center_lat, "lon": r.center_lon, "reports": int(r.reports), "score": round(r.mean_score, 3),
+         "by_storm": {str(y): int(per_storm.loc[gid, y]) for y in STORMS},
          "name": place_name(r.center_lat, r.center_lon, cache)}
-        for gid, r in top.iterrows()
+        for gid, r in picked
     ]
     NAME_CACHE.write_text(json.dumps(cache, indent=1), encoding="utf-8")
     return {"by_count": by_count, "top": top_areas}
