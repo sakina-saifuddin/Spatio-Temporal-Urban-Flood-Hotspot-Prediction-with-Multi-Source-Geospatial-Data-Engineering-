@@ -42,6 +42,8 @@ const state = {
   medians: {},          // typical value of each feature, for "low"/"close"/"flat" wording
   storms: [],
   stormLayer: null,
+  repeatLayer: null,    // purple repeat-flooding glow, when that view is on
+  repeat: null,
   activeStorm: null,
   pin: null,            // the marker showing what you clicked or searched
   hoverDot: null,       // the 311 dot under the mouse, if any
@@ -81,7 +83,13 @@ streets.on("tileerror", () => {
 
 // Zoomed in close, fade the glow a bit more so street names stay easy to read
 // The closer you zoom, the lighter the glow, so the street map stays crisp
-map.on("zoomend", () => { const z = map.getZoom(); state.glow?.setOpacity(z >= 15 ? 0.35 : z >= 13 ? 0.5 : 1); });
+function applyGlowOpacity() {
+  const z = map.getZoom();
+  const base = z >= 15 ? 0.35 : z >= 13 ? 0.5 : 1;
+  state.glow?.setOpacity(state.repeatLayer ? base * 0.3 : base);   // fade the score colors under the repeat view
+  state.repeatLayer?.setOpacity(z >= 15 ? 0.6 : z >= 13 ? 0.8 : 1);
+}
+map.on("zoomend", applyGlowOpacity);
 
 // Legend: a smooth gradient bar matching the glow
 document.getElementById("legend-items").innerHTML = `
@@ -91,10 +99,11 @@ document.getElementById("legend-items").innerHTML = `
 // =====================================================================
 // 3. Load data and paint the smooth color glow
 // =====================================================================
-Promise.all([getJSON("data/cells.json"), getJSON("data/storms.json"), getJSON("data/hotspots.json")])
-  .then(([cells, storms, hotspots]) => {
+Promise.all([getJSON("data/cells.json"), getJSON("data/storms.json"), getJSON("data/hotspots.json"), getJSON("data/repeat.json")])
+  .then(([cells, storms, hotspots, repeat]) => {
     state.cells = cells;
     state.storms = storms;
+    state.repeat = repeat;
     for (const c of cells) state.byId.set(c.id, c);
     state.medians = {
       elev: median(cells.map((c) => c.elev)),
@@ -119,7 +128,7 @@ Promise.all([getJSON("data/cells.json"), getJSON("data/storms.json"), getJSON("d
 // Turn the ~1 km grid into one soft, see-through image (no hard boxes):
 // 1) draw one pixel per grid cell, 2) scale it up with smoothing + blur so neighbors blend,
 // 3) lay it over the street map. Places that weren't sampled stay transparent.
-function paintGlow(cells) {
+function paintGlow(cells, pixel = scorePixel) {
   const rows = cells.map((c) => Math.round(c.lat * 100));
   const cols = cells.map((c) => Math.round(c.lon * 100));
   const [r0, r1, c0, c1] = [Math.min(...rows), Math.max(...rows), Math.min(...cols), Math.max(...cols)];
@@ -131,9 +140,8 @@ function paintGlow(cells) {
   const img = sctx.createImageData(W, H);
   cells.forEach((c, k) => {
     const x = cols[k] - c0, y = r1 - rows[k];            // north is up
-    const [r, g, b] = rampColor(c.score);
-    const i = (y * W + x) * 4;
-    img.data.set([r, g, b, Math.round((0.25 + 0.35 * c.score) * 255)], i); // see-through; higher scores a bit stronger
+    const rgba = pixel(c);
+    if (rgba) img.data.set(rgba, (y * W + x) * 4);
   });
   sctx.putImageData(img, 0, 0);
 
@@ -148,6 +156,12 @@ function paintGlow(cells) {
 
   const bounds = [[(r0 - 0.5) / 100, (c0 - 0.5) / 100], [(r1 + 0.5) / 100, (c1 + 0.5) / 100]];
   return L.imageOverlay(big.toDataURL(), bounds, { pane: "glow", interactive: false });
+}
+
+// Default glow pixel: score color, see-through; higher scores a bit stronger
+function scorePixel(c) {
+  const [r, g, b] = rampColor(c.score);
+  return [r, g, b, Math.round((0.25 + 0.35 * c.score) * 255)];
 }
 
 function rampColor(t) {
@@ -172,7 +186,10 @@ map.on("mousemove", (e) => {
   map.getContainer().style.cursor = c ? "pointer" : "";
   if (!c) { map.closeTooltip(hoverTip); return; }
   let tip = `<b>${levelFor(c.score).label}</b> · click for details`;
-  if (state.activeStorm) {
+  if (state.repeatLayer) {
+    const n = Object.keys(c.reports).length;
+    tip += `<br>Flood reports in <b>${n} of 4</b> storms`;
+  } else if (state.activeStorm) {
     const n = c.reports[state.activeStorm] || 0;
     tip += `<br>${n ? `${n} flood report${n === 1 ? "" : "s"}` : "No flood reports"} nearby in ${state.activeStorm}`;
   }
@@ -564,14 +581,18 @@ function buildStormChips() {
   const box = document.getElementById("storm-chips");
   const options = [{ year: null, label: "None" }, ...state.storms.map((s) => ({ year: s.year, label: `${shortName(s.name)} ’${String(s.year).slice(2)}` }))];
   box.innerHTML = options.map((o) =>
-    `<button class="chip" data-year="${o.year ?? ""}" aria-pressed="${o.year === null}">${o.label}</button>`).join("");
+    `<button class="chip" data-year="${o.year ?? ""}" aria-pressed="${o.year === null}">${o.label}</button>`).join("") +
+    `<button class="chip chip-repeat" data-year="repeat" aria-pressed="false">${icon("repeat")}Repeat flooding</button>`;
   box.addEventListener("click", (e) => {
     const btn = e.target.closest(".chip");
-    if (btn) showStorm(btn.dataset.year ? Number(btn.dataset.year) : null);
+    if (!btn) return;
+    if (btn.dataset.year === "repeat") showRepeat();
+    else showStorm(btn.dataset.year ? Number(btn.dataset.year) : null);
   });
 }
 
 function showStorm(year) {
+  clearRepeat();
   state.activeStorm = year;
   document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String((b.dataset.year || null) == year)));
   clearFlood();
@@ -682,6 +703,63 @@ function hoverDotOff(dot) {
 }
 
 const shortName = (n) => n.replace("Tropical Storm ", "").replace("Hurricane ", "").replace(" Flood", "");
+
+// =====================================================================
+// 5b. Repeat flooding: areas with 311 flood reports in 2, 3 or all 4 storms (purple glow)
+// =====================================================================
+const REPEAT_COLORS = { 2: [167, 139, 250, 70], 3: [124, 58, 237, 105], 4: [91, 33, 182, 140] };   // see-through so streets show
+
+function repeatPixel(c) {
+  return REPEAT_COLORS[Object.keys(c.reports).length] || null;   // 0–1 storms stay transparent
+}
+
+function clearRepeat() {
+  if (!state.repeatLayer) return;
+  map.removeLayer(state.repeatLayer);
+  state.repeatLayer = null;
+  document.getElementById("repeat-panel").classList.add("hidden");
+  document.getElementById("legend-repeat").classList.add("hidden");
+  applyGlowOpacity();
+}
+
+function showRepeat() {
+  showStorm(null);                                   // clear any storm dots first
+  state.repeatLayer = paintGlow(state.cells, repeatPixel).addTo(map);
+  applyGlowOpacity();
+  document.querySelectorAll(".chip").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.year === "repeat")));
+  document.getElementById("legend-repeat").classList.remove("hidden");
+
+  const { by_count: counts, top } = state.repeat;
+  const all4 = counts.find((x) => x.storms === 4);
+  const maxScore = Math.max(...counts.map((x) => x.avg_score));
+  // Top areas, one per neighborhood name
+  const seen = new Set();
+  const list = top.filter((t) => { const k = t.name || t.id; if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 6);
+
+  document.getElementById("repeat-info").innerHTML = `
+    <div class="big">${all4.areas.toLocaleString()} <span>areas</span></div>
+    <p>had 311 flood reports in <b>all 4 storms</b>: the same places, flooding again and again.</p>
+    <p class="result-head" style="margin-top:12px">Average flood-likeness score</p>
+    <div class="rep-chart">
+      ${[...counts].reverse().map((x) => `
+        <div class="rep-row"><span>${x.storms === 0 ? "No reports" : `${x.storms} storm${x.storms > 1 ? "s" : ""}`}</span>
+          <span class="rep-bar s${x.storms}" style="width:${Math.round((x.avg_score / maxScore) * 100)}%"></span>
+          <b>${x.avg_score.toFixed(2)}</b></div>`).join("")}
+    </div>
+    <p class="fine">The more storms an area flooded in, the higher the model scored its land, even though the model only looks at the land.</p>
+    <p class="result-head" style="margin-top:12px">Flooded in every storm</p>
+    <ol class="rep-list">${list.map((t) => `
+      <li><button data-id="${esc(t.id)}" data-name="${esc(t.name || "")}"><span>${esc(t.name || `Near ${t.lat.toFixed(2)}, ${t.lon.toFixed(2)}`)}</span><small>${t.reports} reports</small></button></li>`).join("")}
+    </ol>`;
+  document.getElementById("repeat-panel").classList.remove("hidden");
+  document.getElementById("repeat-panel").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  scout("Purple shows <b>repeat flooding</b>: the darker the purple, the more of the 4 storms had 311 flood reports there. Click an area to see its reports for each storm.");
+}
+
+document.getElementById("repeat-info").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-id]");
+  if (b) selectCell(b.dataset.id, { fly: true, label: `${b.dataset.name || "This area"} · flooded in all 4 storms` });
+});
 
 // =====================================================================
 // 6. Top 10 hotspots

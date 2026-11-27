@@ -7,6 +7,7 @@ Outputs (web/data/):
     cells.json     one record per ~1 km grid cell: score, land features, SHAP, 311 reports per storm
     storms.json    the four storms: name and model performance
     hotspots.json  top 10 highest-scoring well-sampled cells, with a nearby place name
+    repeat.json    repeat flooding: areas by number of storms with 311 reports, top repeat areas with names
 
 Nothing here retrains the model or recomputes SHAP; it only reshapes the team's validated outputs.
 """
@@ -128,6 +129,27 @@ def build_hotspots(grid: pd.DataFrame) -> list[dict]:
     return hotspots
 
 
+def build_repeat(grid: pd.DataFrame, hist: pd.DataFrame) -> dict:
+    """Repeat flooding: in how many of the 4 storms did each area have 311 flood reports?"""
+    rep = hist[hist.report_positive_count > 0].groupby("grid_id").agg(
+        storms=("year", "nunique"), reports=("report_positive_count", "sum"))
+    g = grid.set_index("grid_id").join(rep).fillna({"storms": 0, "reports": 0})
+    g["storms"] = g["storms"].astype(int)
+    by_count = [
+        {"storms": n, "areas": int((g.storms == n).sum()), "avg_score": round(float(g.loc[g.storms == n, "mean_score"].mean()), 2)}
+        for n in range(5)
+    ]
+    cache = json.loads(NAME_CACHE.read_text(encoding="utf-8")) if NAME_CACHE.exists() else {}
+    top = g[g.storms == 4].nlargest(10, "reports")
+    top_areas = [
+        {"id": gid, "lat": r.center_lat, "lon": r.center_lon, "reports": int(r.reports), "score": round(r.mean_score, 3),
+         "name": place_name(r.center_lat, r.center_lon, cache)}
+        for gid, r in top.iterrows()
+    ]
+    NAME_CACHE.write_text(json.dumps(cache, indent=1), encoding="utf-8")
+    return {"by_count": by_count, "top": top_areas}
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     grid = pd.read_parquet(SRC / "grid_summary.parquet")
@@ -136,6 +158,7 @@ def main() -> None:
     write("cells.json", build_cells(grid, hist))
     write("storms.json", build_storms())
     write("hotspots.json", build_hotspots(grid))
+    write("repeat.json", build_repeat(grid, hist))
 
 
 if __name__ == "__main__":

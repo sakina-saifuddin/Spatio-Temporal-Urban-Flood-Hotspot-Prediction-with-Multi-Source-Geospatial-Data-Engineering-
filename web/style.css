@@ -724,3 +724,27 @@ body:not([data-view="map"]) .search { visibility: hidden; }
 @media (max-width: 820px) { .map-hint { left: 8px; right: 8px; transform: none; max-width: none; bottom: 64px; font-size: 0.78rem; } }
 .map-hint { white-space: nowrap; } @media (max-width: 1100px) { .map-hint { white-space: normal; } }
 .map-wrap:has(.card:not(.hidden)) .map-hint { display: none; }   /* they already found the dots */
+
+/* ================= Repeat flooding view (purple) ================= */
+.chip-repeat { display: inline-flex; align-items: center; gap: 5px; border-color: #c4b5fd; color: #5b21b6; }
+.chip-repeat:hover { border-color: #7c3aed; }
+.chip-repeat[aria-pressed="true"] { background: #5b21b6; border-color: #5b21b6; color: #fff; }
+.repeat-panel { border: 2px solid #7c3aed; }
+.repeat-panel h2 { color: #4c1d95; }
+.repeat-panel h2 .i { color: #7c3aed; }
+.repeat-panel .storm-info { margin-top: 0; padding: 0; background: none; }
+.repeat-panel .big { color: #5b21b6; }
+.rep-chart { display: flex; flex-direction: column; gap: 5px; margin: 6px 0; }
+.rep-row { display: grid; grid-template-columns: 78px 1fr 34px; align-items: center; gap: 8px; font-size: 0.78rem; }
+.rep-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.rep-bar { height: 10px; border-radius: 5px; background: #e5e7eb; }
+.rep-bar.s1 { background: #ddd6fe; } .rep-bar.s2 { background: #a78bfa; } .rep-bar.s3 { background: #7c3aed; } .rep-bar.s4 { background: #4c1d95; }
+.rep-list { list-style: none; margin: 6px 0 0; padding: 0; }
+.rep-list button {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;
+  background: #f5f3ff; border: 1px solid transparent; border-radius: 8px; padding: 6px 10px; text-align: left; color: inherit; font-size: 0.84rem; font-weight: 700;
+}
+.rep-list button:hover { border-color: #7c3aed; }
+.rep-list small { color: #6d28d9; font-weight: 600; white-space: nowrap; }
+.rep-swatch { width: 18px; height: 10px; margin-top: 4px; flex-shrink: 0; border-radius: 3px; background: linear-gradient(90deg, #a78bfa, #7c3aed, #4c1d95); }
+#legend-repeat { margin-top: 6px; font-size: 0.74rem; align-items: flex-start; }
