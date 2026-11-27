@@ -780,17 +780,16 @@ function showView(name) {
   document.body.dataset.view = name;
   if (name === "map") setTimeout(() => map.invalidateSize(), 0);   // the map was hidden, so let Leaflet re-measure
   else document.getElementById(`view-${name}`).scrollTop = 0;
-  if (location.hash !== `#${name}`) history.replaceState(null, "", `#${name}`);
+  // The map is the home page, so it keeps a clean address (no "#map"); the other tabs get #project / #build
+  const want = name === "map" ? "" : `#${name}`;
+  if (location.hash !== want) history.replaceState(null, "", location.pathname + location.search + want);
 }
 document.querySelectorAll(".tab, [data-goto]").forEach((el) =>
   el.addEventListener("click", () => showView(el.dataset.view || el.dataset.goto)));
 window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
 showView(location.hash.slice(1) || "map");
 document.getElementById("brand").onclick = () => openModal("welcome");
-document.getElementById("welcome-go").onclick = () => {
-  closeModal("welcome");
-  try { localStorage.setItem("seenWelcome", "1"); } catch { /* storage blocked: fine */ }
-};
+document.getElementById("welcome-go").onclick = () => closeModal("welcome");
 document.querySelectorAll(".modal").forEach((m) => m.addEventListener("click", (e) => {
   if (e.target === m || e.target.closest("[data-close]")) m.classList.add("hidden");
 }));
@@ -800,9 +799,8 @@ document.addEventListener("keydown", (e) => {
   closeCard();
 });
 
-let seen = false;
-try { seen = localStorage.getItem("seenWelcome") === "1"; } catch { /* ignore */ }
-if (!seen) openModal("welcome");
+// Show Scout's welcome every time someone opens the map (not when they land directly on The Project / How We Built It)
+if (document.body.dataset.view === "map") openModal("welcome");
 
 // =====================================================================
 // 9. Small helpers
