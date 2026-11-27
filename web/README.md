@@ -32,7 +32,7 @@ Open http://localhost:8000. (Opening `index.html` directly doesn't work because 
 - **Selected spot** (sidebar): street name, neighborhood and area level for whatever you clicked, plus recently viewed streets
 - **Street names**: looked up on demand from the coordinates (OpenStreetMap Nominatim reverse geocoding,
   max 1 request/second, cached in the page). The raw 311 files only contain coordinates, not addresses.
-- **Welcome screen** (first visit)
+- **Welcome screen**: Scout's pop-up opens every time the map loads
 - **Tabs**: 🗺️ Flood Map · 💡 The Project (motivation, question, storms, datasets, cleaning, accuracy, limits,
   official links) · 🛠️ How We Built It (pipeline, data splitting, models and scores, Imelda test,
   tuning, SHAP, tech stack). Linkable as `#map`, `#project`, `#build`. Numbers come from the project docs and
