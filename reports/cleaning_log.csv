@@ -1,4 +1,9 @@
-step,rows_before,rows_removed,rows_after
-remove_duplicates,85738,8863,76875
-keep_developed_negatives,76875,10310,66565
-drop_nondeveloped_positives,66565,51,66514
+dataset,step,rows_before,rows_removed,rows_after
+training_clean,remove_duplicates,85738,8863,76875
+training_clean,keep_developed_negatives,76875,10310,66565
+training_clean,drop_nondeveloped_positives,66565,51,66514
+test_final,remove_duplicates,24852,2663,22189
+test_final,keep_developed_negatives,22189,3008,19181
+test_final,drop_nondeveloped_positives,19181,17,19164
+test_final,add_grid_cell,19164,0,19164
+test_final,drop_excluded_features,19164,0,19164

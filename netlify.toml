@@ -1,0 +1,12 @@
+# Netlify: FloodSense 2.0 is a static site in web/. Nothing to build.
+# base = "web" also keeps Netlify from installing the research requirements.txt (PyTorch etc.) at the repo root.
+[build]
+  base = "web"
+  publish = "."
+  command = "echo 'Static site: nothing to build'"
+
+# Cache the large data files for a day; HTML is always revalidated so new deploys show up immediately.
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

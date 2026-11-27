@@ -1,0 +1,223 @@
+2026-11-08T16:40:19-06:00
+--- Run started 2026-11-08T22:40:19.491302+00:00 ---
+2026-11-08T16:40:21-06:00 Selected 76 catalog tiles for 66,514 training rows.
+2026-11-08T16:42:15-06:00 Tile 01/76 | download=done 11.7s | reproject=done 102.6s | elapsed=116.2s | USGS_1M_14_x80y328_TX_Houston_B24.tif
+2026-11-08T16:43:49-06:00 Tile 02/76 | download=done 11.8s | reproject=done 82.2s | elapsed=210.2s | USGS_1M_14_x80y329_TX_Houston_B24.tif
+2026-11-08T16:45:30-06:00 Tile 03/76 | download=done 11.9s | reproject=done 88.5s | elapsed=310.6s | USGS_1M_14_x80y330_TX_Houston_B24.tif
+2026-11-08T16:47:13-06:00 Tile 04/76 | download=done 11.8s | reproject=done 91.7s | elapsed=414.1s | USGS_1M_15_x22y327_TX_Houston_B24.tif
+2026-11-08T16:48:44-06:00 Tile 05/76 | download=done 11.4s | reproject=done 79.4s | elapsed=504.9s | USGS_1M_15_x22y328_TX_Houston_B24.tif
+2026-11-08T16:50:15-06:00 Tile 06/76 | download=done 11.8s | reproject=done 78.9s | elapsed=595.7s | USGS_1M_15_x22y329_TX_Houston_B24.tif
+2026-11-08T16:51:52-06:00 Tile 07/76 | download=done 11.0s | reproject=done 86.0s | elapsed=692.7s | USGS_1M_15_x22y330_TX_Houston_B24.tif
+2026-11-08T16:53:45-06:00 Tile 08/76 | download=done 10.5s | reproject=done 102.3s | elapsed=805.6s | USGS_1M_15_x22y331_TX_Houston_B24.tif
+2026-11-08T16:55:40-06:00 Tile 09/76 | download=done 11.4s | reproject=done 103.9s | elapsed=921.0s | USGS_1M_15_x22y332_TX_Houston_B24.tif
+2026-11-08T16:57:26-06:00 Tile 10/76 | download=done 10.5s | reproject=done 95.9s | elapsed=1027.4s | USGS_1M_15_x22y333_TX_Houston_B24.tif
+2026-11-08T16:58:49-06:00 Tile 11/76 | download=done 12.7s | reproject=done 69.5s | elapsed=1109.6s | USGS_1M_15_x23y327_TX_Houston_B24.tif
+2026-11-08T16:59:53-06:00 Tile 12/76 | download=done 12.3s | reproject=done 52.0s | elapsed=1173.9s | USGS_1M_15_x23y328_TX_Houston_B24.tif
+2026-11-08T17:00:55-06:00 Tile 13/76 | download=done 11.9s | reproject=done 49.9s | elapsed=1235.7s | USGS_1M_15_x23y329_TX_Houston_B24.tif
+2026-11-08T17:02:37-06:00 Tile 14/76 | download=done 13.2s | reproject=done 89.2s | elapsed=1338.2s | USGS_1M_15_x23y330_TX_Houston_B24.tif
+2026-11-08T17:04:26-06:00 Tile 15/76 | download=done 11.9s | reproject=done 96.5s | elapsed=1446.5s | USGS_1M_15_x23y331_TX_Houston_B24.tif
+2026-11-08T17:06:14-06:00 Tile 16/76 | download=done 11.4s | reproject=done 97.2s | elapsed=1555.1s | USGS_1M_15_x23y332_TX_Houston_B24.tif
+2026-11-08T17:08:06-06:00 Tile 17/76 | download=done 11.3s | reproject=done 100.8s | elapsed=1667.2s | USGS_1M_15_x23y333_TX_Houston_B24.tif
+2026-11-08T17:09:42-06:00 Tile 18/76 | download=done 12.0s | reproject=done 84.2s | elapsed=1763.5s | USGS_1M_15_x23y334_TX_Houston_B24.tif
+2026-11-08T17:11:17-06:00 Tile 19/76 | download=done 11.4s | reproject=done 83.5s | elapsed=1858.4s | USGS_1M_15_x24y327_TX_Houston_B24.tif
+2026-11-08T17:12:32-06:00 Tile 20/76 | download=done 12.2s | reproject=done 62.4s | elapsed=1933.0s | USGS_1M_15_x24y328_TX_Houston_B24.tif
+2026-11-08T17:13:47-06:00 Tile 21/76 | download=done 12.3s | reproject=done 63.0s | elapsed=2008.3s | USGS_1M_15_x24y329_TX_Houston_B24.tif
+2026-11-08T17:15:07-06:00 Tile 22/76 | download=done 12.6s | reproject=done 67.0s | elapsed=2087.8s | USGS_1M_15_x24y330_TX_Houston_B24.tif
+2026-11-08T17:16:22-06:00 Tile 23/76 | download=done 11.8s | reproject=done 62.8s | elapsed=2162.5s | USGS_1M_15_x24y331_TX_Houston_B24.tif
+2026-11-08T17:17:11-06:00 Tile 24/76 | download=done 11.5s | reproject=done 37.9s | elapsed=2211.9s | USGS_1M_15_x24y332_TX_Houston_B24.tif
+2026-11-08T17:18:51-06:00 Tile 25/76 | download=done 11.5s | reproject=done 88.3s | elapsed=2311.7s | USGS_1M_15_x24y333_TX_Houston_B24.tif
+2026-11-08T17:20:13-06:00 Tile 26/76 | download=done 11.6s | reproject=done 70.6s | elapsed=2393.9s | USGS_1M_15_x24y334_TX_Houston_B24.tif
+2026-11-08T17:21:32-06:00 Tile 27/76 | download=done 12.5s | reproject=done 66.8s | elapsed=2473.3s | USGS_1M_15_x25y327_TX_Houston_B24.tif
+2026-11-08T17:22:50-06:00 Tile 28/76 | download=done 11.8s | reproject=done 65.9s | elapsed=2551.0s | USGS_1M_15_x25y328_TX_Houston_B24.tif
+2026-11-08T17:24:24-06:00 Tile 29/76 | download=done 11.9s | reproject=done 82.4s | elapsed=2645.3s | USGS_1M_15_x25y329_TX_Houston_B24.tif
+2026-11-08T17:25:37-06:00 Tile 30/76 | download=done 12.1s | reproject=done 60.8s | elapsed=2718.2s | USGS_1M_15_x25y330_TX_Houston_B24.tif
+2026-11-08T17:26:56-06:00 Tile 31/76 | download=done 11.5s | reproject=done 66.9s | elapsed=2796.7s | USGS_1M_15_x25y331_TX_Houston_B24.tif
+2026-11-08T17:28:42-06:00 Tile 32/76 | download=done 11.5s | reproject=done 95.1s | elapsed=2903.2s | USGS_1M_15_x25y332_TX_Houston_B24.tif
+2026-11-08T17:30:59-06:00 Tile 33/76 | download=done 56.1s | reproject=done 80.9s | elapsed=3040.2s | USGS_1M_15_x25y333_TX_Houston_B24.tif
+2026-11-08T17:32:15-06:00 Tile 34/76 | download=done 11.7s | reproject=done 64.3s | elapsed=3116.2s | USGS_1M_15_x25y334_TX_Houston_B24.tif
+2026-11-08T17:33:41-06:00 Tile 35/76 | download=done 11.8s | reproject=done 74.4s | elapsed=3202.4s | USGS_1M_15_x26y327_TX_Houston_B24.tif
+2026-11-08T17:34:28-06:00 Tile 36/76 | download=done 11.8s | reproject=done 34.9s | elapsed=3249.1s | USGS_1M_15_x26y328_TX_Houston_B24.tif
+2026-11-08T17:35:41-06:00 Tile 37/76 | download=done 12.3s | reproject=done 61.1s | elapsed=3322.5s | USGS_1M_15_x26y329_TX_Houston_B24.tif
+2026-11-08T17:35:41-06:00 Tile 38/76 | download=skip 0.0s | reproject=skip 0.0s | elapsed=3322.5s | USGS_1M_15_x26y330_TX_Houston_B24.tif
+2026-11-08T17:37:11-06:00 Tile 39/76 | download=done 11.9s | reproject=done 77.3s | elapsed=3411.7s | USGS_1M_15_x26y331_TX_Houston_B24.tif
+2026-11-08T17:38:31-06:00 Tile 40/76 | download=done 12.3s | reproject=done 67.6s | elapsed=3491.6s | USGS_1M_15_x26y332_TX_Houston_B24.tif
+2026-11-08T17:39:59-06:00 Tile 41/76 | download=done 11.5s | reproject=done 76.9s | elapsed=3580.1s | USGS_1M_15_x26y333_TX_Houston_B24.tif
+2026-11-08T17:41:19-06:00 Tile 42/76 | download=done 11.6s | reproject=done 68.8s | elapsed=3660.5s | USGS_1M_15_x26y334_TX_Houston_B24.tif
+2026-11-08T17:42:39-06:00 Tile 43/76 | download=done 11.5s | reproject=done 68.2s | elapsed=3740.2s | USGS_1M_15_x26y335_TX_Houston_B24.tif
+2026-11-08T17:44:03-06:00 Tile 44/76 | download=done 11.8s | reproject=done 71.9s | elapsed=3824.0s | USGS_1M_15_x27y327_TX_Houston_B24.tif
+2026-11-08T17:45:15-06:00 Tile 45/76 | download=done 12.8s | reproject=done 58.9s | elapsed=3895.7s | USGS_1M_15_x27y328_TX_Houston_B24.tif
+2026-11-08T17:46:27-06:00 Tile 46/76 | download=done 12.5s | reproject=done 59.9s | elapsed=3968.0s | USGS_1M_15_x27y329_TX_Houston_B24.tif
+2026-11-08T17:46:27-06:00 Tile 47/76 | download=skip 0.0s | reproject=skip 0.0s | elapsed=3968.0s | USGS_1M_15_x27y330_TX_Houston_B24.tif
+2026-11-08T17:47:54-06:00 Tile 48/76 | download=done 12.2s | reproject=done 75.2s | elapsed=4055.4s | USGS_1M_15_x27y331_TX_Houston_B24.tif
+2026-11-08T17:49:22-06:00 Tile 49/76 | download=done 12.4s | reproject=done 75.4s | elapsed=4143.3s | USGS_1M_15_x27y332_TX_Houston_B24.tif
+2026-11-08T17:50:38-06:00 Tile 50/76 | download=done 11.7s | reproject=done 64.4s | elapsed=4219.5s | USGS_1M_15_x27y333_TX_Houston_B24.tif
+2026-11-08T17:52:06-06:00 Tile 51/76 | download=done 14.3s | reproject=done 72.8s | elapsed=4306.7s | USGS_1M_15_x27y334_TX_Houston_B24.tif
+2026-11-08T17:53:34-06:00 Tile 52/76 | download=done 14.2s | reproject=done 74.6s | elapsed=4395.4s | USGS_1M_15_x28y327_TX_Houston_B24.tif
+2026-11-08T17:54:56-06:00 Tile 53/76 | download=done 13.7s | reproject=done 68.3s | elapsed=4477.4s | USGS_1M_15_x28y328_TX_Houston_B24.tif
+2026-11-08T17:56:21-06:00 Tile 54/76 | download=done 13.7s | reproject=done 71.3s | elapsed=4562.4s | USGS_1M_15_x28y329_TX_Houston_B24.tif
+2026-11-08T17:57:44-06:00 Tile 55/76 | download=done 13.5s | reproject=done 68.8s | elapsed=4644.6s | USGS_1M_15_x28y330_TX_Houston_B24.tif
+2026-11-08T17:59:18-06:00 Tile 56/76 | download=done 13.7s | reproject=done 80.4s | elapsed=4738.7s | USGS_1M_15_x28y331_TX_Houston_B24.tif
+2026-11-08T18:01:09-06:00 Tile 57/76 | download=done 12.6s | reproject=done 98.6s | elapsed=4849.8s | USGS_1M_15_x28y332_TX_Houston_B24.tif
+2026-11-08T18:02:43-06:00 Tile 58/76 | download=done 12.4s | reproject=done 81.3s | elapsed=4943.5s | USGS_1M_15_x28y333_TX_Houston_B24.tif
+2026-11-08T18:04:28-06:00 Tile 59/76 | download=done 12.8s | reproject=done 93.1s | elapsed=5049.4s | USGS_1M_15_x28y334_TX_Houston_B24.tif
+2026-11-08T18:05:40-06:00 Tile 60/76 | download=done 14.1s | reproject=done 57.3s | elapsed=5120.8s | USGS_1M_15_x29y327_TX_Houston_B24.tif
+2026-11-08T18:07:05-06:00 Tile 61/76 | download=done 14.1s | reproject=done 70.8s | elapsed=5205.7s | USGS_1M_15_x29y328_TX_Houston_B24.tif
+2026-11-08T18:08:39-06:00 Tile 62/76 | download=done 14.8s | reproject=done 79.4s | elapsed=5300.0s | USGS_1M_15_x29y329_TX_Houston_B24.tif
+2026-11-08T18:10:09-06:00 Tile 63/76 | download=done 24.8s | reproject=done 65.6s | elapsed=5390.4s | USGS_1M_15_x29y330_TX_Houston_B24.tif
+2026-11-08T18:12:02-06:00 Tile 64/76 | download=done 34.9s | reproject=done 77.5s | elapsed=5502.8s | USGS_1M_15_x29y331_TX_Houston_B24.tif
+2026-11-08T18:13:33-06:00 Tile 65/76 | download=done 11.1s | reproject=done 80.4s | elapsed=5594.3s | USGS_1M_15_x29y332_TX_Houston_B24.tif
+2026-11-08T18:15:09-06:00 Tile 66/76 | download=done 11.8s | reproject=done 83.5s | elapsed=5689.6s | USGS_1M_15_x29y333_TX_Houston_B24.tif
+2026-11-08T18:16:38-06:00 Tile 67/76 | download=done 13.0s | reproject=done 76.3s | elapsed=5778.9s | USGS_1M_15_x29y334_TX_Houston_B24.tif
+2026-11-08T18:18:04-06:00 Tile 68/76 | download=done 14.0s | reproject=done 71.8s | elapsed=5864.8s | USGS_1M_15_x30y326_TX_Houston_B24.tif
+2026-11-08T18:19:22-06:00 Tile 69/76 | download=done 11.7s | reproject=done 66.1s | elapsed=5942.6s | USGS_1M_15_x30y327_TX_Houston_B24.tif
+2026-11-08T18:20:15-06:00 Tile 70/76 | download=done 7.7s | reproject=done 45.4s | elapsed=5995.6s | USGS_1M_15_x30y328_TX_Houston_B24.tif
+2026-11-08T18:21:19-06:00 Tile 71/76 | download=done 9.0s | reproject=done 55.5s | elapsed=6060.1s | USGS_1M_15_x30y329_TX_Houston_B24.tif
+2026-11-08T18:22:36-06:00 Tile 72/76 | download=done 11.2s | reproject=done 65.6s | elapsed=6137.0s | USGS_1M_15_x30y330_TX_Houston_B24.tif
+2026-11-08T18:24:09-06:00 Tile 73/76 | download=done 13.0s | reproject=done 79.7s | elapsed=6229.7s | USGS_1M_15_x30y331_TX_Houston_B24.tif
+2026-11-08T18:24:54-06:00 Tile 74/76 | download=done 13.3s | reproject=done 31.9s | elapsed=6275.0s | USGS_1M_15_x30y332_TX_Houston_B24.tif
+2026-11-08T18:25:47-06:00 Tile 75/76 | download=done 12.3s | reproject=done 40.7s | elapsed=6328.0s | USGS_1M_15_x30y333_TX_Houston_B24.tif
+2026-11-08T18:26:35-06:00 Tile 76/76 | download=done 13.4s | reproject=done 34.5s | elapsed=6376.0s | USGS_1M_15_x30y334_TX_Houston_B24.tif
+2026-11-08T18:26:35-06:00 All 76 source rasters are available and reprojected.
+2026-11-08T18:26:35-06:00 Terrain extraction resumes at row 0/66,514.
+2026-11-08T18:26:49-06:00 Terrain rows 500/66,514.
+2026-11-08T18:27:01-06:00 Terrain rows 1,000/66,514.
+2026-11-08T18:27:13-06:00 Terrain rows 1,500/66,514.
+2026-11-08T18:27:25-06:00 Terrain rows 2,000/66,514.
+2026-11-08T18:27:36-06:00 Terrain rows 2,500/66,514.
+2026-11-08T18:27:47-06:00 Terrain rows 3,000/66,514.
+2026-11-08T18:27:58-06:00 Terrain rows 3,500/66,514.
+2026-11-08T18:28:09-06:00 Terrain rows 4,000/66,514.
+2026-11-08T18:28:20-06:00 Terrain rows 4,500/66,514.
+2026-11-08T18:28:30-06:00 Terrain rows 5,000/66,514.
+2026-11-08T18:28:41-06:00 Terrain rows 5,500/66,514.
+2026-11-08T18:28:52-06:00 Terrain rows 6,000/66,514.
+2026-11-08T18:29:05-06:00 Terrain rows 6,500/66,514.
+2026-11-08T18:29:14-06:00 Terrain rows 7,000/66,514.
+2026-11-08T18:29:25-06:00 Terrain rows 7,500/66,514.
+2026-11-08T18:29:36-06:00 Terrain rows 8,000/66,514.
+2026-11-08T18:29:47-06:00 Terrain rows 8,500/66,514.
+2026-11-08T18:29:58-06:00 Terrain rows 9,000/66,514.
+2026-11-08T18:30:09-06:00 Terrain rows 9,500/66,514.
+2026-11-08T18:30:20-06:00 Terrain rows 10,000/66,514.
+2026-11-08T18:30:31-06:00 Terrain rows 10,500/66,514.
+2026-11-08T18:30:42-06:00 Terrain rows 11,000/66,514.
+2026-11-08T18:30:54-06:00 Terrain rows 11,500/66,514.
+2026-11-08T18:31:08-06:00 Terrain rows 12,000/66,514.
+2026-11-08T18:31:20-06:00 Terrain rows 12,500/66,514.
+2026-11-08T18:31:33-06:00 Terrain rows 13,000/66,514.
+2026-11-08T18:31:45-06:00 Terrain rows 13,500/66,514.
+2026-11-08T18:31:58-06:00 Terrain rows 14,000/66,514.
+2026-11-08T18:32:11-06:00 Terrain rows 14,500/66,514.
+2026-11-08T18:32:24-06:00 Terrain rows 15,000/66,514.
+2026-11-08T18:32:37-06:00 Terrain rows 15,500/66,514.
+2026-11-08T18:32:50-06:00 Terrain rows 16,000/66,514.
+2026-11-08T18:33:03-06:00 Terrain rows 16,500/66,514.
+2026-11-08T18:33:15-06:00 Terrain rows 17,000/66,514.
+2026-11-08T18:33:28-06:00 Terrain rows 17,500/66,514.
+2026-11-08T18:33:41-06:00 Terrain rows 18,000/66,514.
+2026-11-08T18:33:53-06:00 Terrain rows 18,500/66,514.
+2026-11-08T18:34:06-06:00 Terrain rows 19,000/66,514.
+2026-11-08T18:34:18-06:00 Terrain rows 19,500/66,514.
+2026-11-08T18:34:31-06:00 Terrain rows 20,000/66,514.
+2026-11-08T18:34:44-06:00 Terrain rows 20,500/66,514.
+2026-11-08T18:34:56-06:00 Terrain rows 21,000/66,514.
+2026-11-08T18:35:09-06:00 Terrain rows 21,500/66,514.
+2026-11-08T18:35:22-06:00 Terrain rows 22,000/66,514.
+2026-11-08T18:35:34-06:00 Terrain rows 22,500/66,514.
+2026-11-08T18:35:45-06:00 Terrain rows 23,000/66,514.
+2026-11-08T18:35:57-06:00 Terrain rows 23,500/66,514.
+2026-11-08T18:36:08-06:00 Terrain rows 24,000/66,514.
+2026-11-08T18:36:19-06:00 Terrain rows 24,500/66,514.
+2026-11-08T18:36:31-06:00 Terrain rows 25,000/66,514.
+2026-11-08T18:36:42-06:00 Terrain rows 25,500/66,514.
+2026-11-08T18:36:53-06:00 Terrain rows 26,000/66,514.
+2026-11-08T18:37:04-06:00 Terrain rows 26,500/66,514.
+2026-11-08T18:37:15-06:00 Terrain rows 27,000/66,514.
+2026-11-08T18:37:26-06:00 Terrain rows 27,500/66,514.
+2026-11-08T18:37:38-06:00 Terrain rows 28,000/66,514.
+2026-11-08T18:37:49-06:00 Terrain rows 28,500/66,514.
+2026-11-08T18:37:59-06:00 Terrain rows 29,000/66,514.
+2026-11-08T18:38:10-06:00 Terrain rows 29,500/66,514.
+2026-11-08T18:38:21-06:00 Terrain rows 30,000/66,514.
+2026-11-08T18:38:32-06:00 Terrain rows 30,500/66,514.
+2026-11-08T18:38:42-06:00 Terrain rows 31,000/66,514.
+2026-11-08T18:38:53-06:00 Terrain rows 31,500/66,514.
+2026-11-08T18:39:11-06:00 Terrain rows 32,000/66,514.
+2026-11-08T18:39:27-06:00 Terrain rows 32,500/66,514.
+2026-11-08T18:39:39-06:00 Terrain rows 33,000/66,514.
+2026-11-08T18:39:51-06:00 Terrain rows 33,500/66,514.
+2026-11-08T18:40:02-06:00 Terrain rows 34,000/66,514.
+2026-11-08T18:40:17-06:00 Terrain rows 34,500/66,514.
+2026-11-08T18:40:30-06:00 Terrain rows 35,000/66,514.
+2026-11-08T18:40:43-06:00 Terrain rows 35,500/66,514.
+2026-11-08T18:40:55-06:00 Terrain rows 36,000/66,514.
+2026-11-08T18:41:10-06:00 Terrain rows 36,500/66,514.
+2026-11-08T18:41:23-06:00 Terrain rows 37,000/66,514.
+2026-11-08T18:41:36-06:00 Terrain rows 37,500/66,514.
+2026-11-08T18:41:48-06:00 Terrain rows 38,000/66,514.
+2026-11-08T18:42:02-06:00 Terrain rows 38,500/66,514.
+2026-11-08T18:42:14-06:00 Terrain rows 39,000/66,514.
+2026-11-08T18:42:28-06:00 Terrain rows 39,500/66,514.
+2026-11-08T18:42:40-06:00 Terrain rows 40,000/66,514.
+2026-11-08T18:42:52-06:00 Terrain rows 40,500/66,514.
+2026-11-08T18:43:04-06:00 Terrain rows 41,000/66,514.
+2026-11-08T18:43:17-06:00 Terrain rows 41,500/66,514.
+2026-11-08T18:43:30-06:00 Terrain rows 42,000/66,514.
+2026-11-08T18:43:43-06:00 Terrain rows 42,500/66,514.
+2026-11-08T18:43:55-06:00 Terrain rows 43,000/66,514.
+2026-11-08T18:44:08-06:00 Terrain rows 43,500/66,514.
+2026-11-08T18:44:21-06:00 Terrain rows 44,000/66,514.
+2026-11-08T18:44:33-06:00 Terrain rows 44,500/66,514.
+2026-11-08T18:44:44-06:00 Terrain rows 45,000/66,514.
+2026-11-08T18:44:55-06:00 Terrain rows 45,500/66,514.
+2026-11-08T18:45:06-06:00 Terrain rows 46,000/66,514.
+2026-11-08T18:45:17-06:00 Terrain rows 46,500/66,514.
+2026-11-08T18:45:28-06:00 Terrain rows 47,000/66,514.
+2026-11-08T18:45:38-06:00 Terrain rows 47,500/66,514.
+2026-11-08T18:45:50-06:00 Terrain rows 48,000/66,514.
+2026-11-08T18:46:01-06:00 Terrain rows 48,500/66,514.
+2026-11-08T18:46:12-06:00 Terrain rows 49,000/66,514.
+2026-11-08T18:46:23-06:00 Terrain rows 49,500/66,514.
+2026-11-08T18:46:33-06:00 Terrain rows 50,000/66,514.
+2026-11-08T18:46:44-06:00 Terrain rows 50,500/66,514.
+2026-11-08T18:46:54-06:00 Terrain rows 51,000/66,514.
+2026-11-08T18:47:06-06:00 Terrain rows 51,500/66,514.
+2026-11-08T18:47:18-06:00 Terrain rows 52,000/66,514.
+2026-11-08T18:47:29-06:00 Terrain rows 52,500/66,514.
+2026-11-08T18:47:39-06:00 Terrain rows 53,000/66,514.
+2026-11-08T18:47:50-06:00 Terrain rows 53,500/66,514.
+2026-11-08T18:48:00-06:00 Terrain rows 54,000/66,514.
+2026-11-08T18:48:14-06:00 Terrain rows 54,500/66,514.
+2026-11-08T18:48:25-06:00 Terrain rows 55,000/66,514.
+2026-11-08T18:48:36-06:00 Terrain rows 55,500/66,514.
+2026-11-08T18:48:49-06:00 Terrain rows 56,000/66,514.
+2026-11-08T18:49:01-06:00 Terrain rows 56,500/66,514.
+2026-11-08T18:49:21-06:00 Terrain rows 57,000/66,514.
+2026-11-08T18:49:36-06:00 Terrain rows 57,500/66,514.
+2026-11-08T18:49:49-06:00 Terrain rows 58,000/66,514.
+2026-11-08T18:50:01-06:00 Terrain rows 58,500/66,514.
+2026-11-08T18:50:14-06:00 Terrain rows 59,000/66,514.
+2026-11-08T18:50:27-06:00 Terrain rows 59,500/66,514.
+2026-11-08T18:50:40-06:00 Terrain rows 60,000/66,514.
+2026-11-08T18:50:53-06:00 Terrain rows 60,500/66,514.
+2026-11-08T18:51:06-06:00 Terrain rows 61,000/66,514.
+2026-11-08T18:51:20-06:00 Terrain rows 61,500/66,514.
+2026-11-08T18:51:46-06:00 Terrain rows 62,000/66,514.
+2026-11-08T18:52:12-06:00 Terrain rows 62,500/66,514.
+2026-11-08T18:52:31-06:00 Terrain rows 63,000/66,514.
+2026-11-08T18:52:55-06:00 Terrain rows 63,500/66,514.
+2026-11-08T18:53:20-06:00 Terrain rows 64,000/66,514.
+2026-11-08T18:53:43-06:00 Terrain rows 64,500/66,514.
+2026-11-08T18:54:09-06:00 Terrain rows 65,000/66,514.
+2026-11-08T18:54:34-06:00 Terrain rows 65,500/66,514.
+2026-11-08T18:54:57-06:00 Terrain rows 66,000/66,514.
+2026-11-08T18:55:22-06:00 Terrain rows 66,500/66,514.
+2026-11-08T18:55:23-06:00 Terrain rows 66,514/66,514.
+2026-11-08T18:55:49-06:00 Elevation check (2,000 seed-42 rows): correlation=0.999589, MAE=0.081747 m.
+2026-11-08T18:55:49-06:00 Missing-pixel share for flooded: 1838/33955=5.413047%; valid center tile rows=33955.
+2026-11-08T18:55:49-06:00 Missing-pixel share for not_flooded: 1990/32559=6.111981%; valid center tile rows=32559.
+2026-11-08T18:55:49-06:00 Flooded share among tiles with missing pixels: 1838/3828=48.014629%; among complete tiles: 32117/62686=51.234725%.
+2026-11-08T18:55:49-06:00 Rows with valid center tile=66,514/66,514; rows without valid center tile=0; tiles with any missing/nodata pixels=3,828.
+2026-11-08T18:55:51-06:00 Available example figure: C:\Users\ssaifudd\Downloads\AI-Flood Project\reports\figures\example_tiles_full.png
+2026-11-08T18:55:51-06:00 Saved terrain array (136,220,800 bytes) and row index (532,240 bytes); valid row indices=66,514.
+2026-11-08T18:55:51-06:00 Run completed in 8131.8 seconds.

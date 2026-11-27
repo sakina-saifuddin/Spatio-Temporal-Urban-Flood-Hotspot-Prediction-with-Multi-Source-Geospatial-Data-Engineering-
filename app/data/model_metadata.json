@@ -1,0 +1,333 @@
+{
+  "application": {
+    "name": "FloodSense",
+    "mascot": "Scout",
+    "purpose": "Interactive exploration of historical flood susceptibility in the Houston study area.",
+    "research_only": true,
+    "real_time_forecast": false
+  },
+  "model": {
+    "name": "lightgbm_no_rain",
+    "algorithm": "LightGBM",
+    "role": "final",
+    "random_seed": 42,
+    "frozen_cutoff": 0.5,
+    "features": [
+      "elevation_m",
+      "slope_degrees",
+      "distance_to_bayou_m",
+      "paved_pct",
+      "land_cover_type"
+    ],
+    "excluded_features": [
+      "rainfall_inches"
+    ],
+    "target": "flooded",
+    "parameters": {
+      "boosting_type": "gbdt",
+      "class_weight": null,
+      "colsample_bytree": 1.0,
+      "importance_type": "split",
+      "learning_rate": 0.1,
+      "max_depth": -1,
+      "min_child_samples": 20,
+      "min_child_weight": 0.001,
+      "min_split_gain": 0.0,
+      "n_estimators": 300,
+      "n_jobs": -1,
+      "num_leaves": 31,
+      "objective": null,
+      "random_state": 42,
+      "reg_alpha": 0.0,
+      "reg_lambda": 0.0,
+      "subsample": 1.0,
+      "subsample_for_bin": 200000,
+      "subsample_freq": 0,
+      "verbose": -1
+    },
+    "training_observations": 66514,
+    "transformed_feature_count": 8,
+    "training_scope": "Complete development dataset, 2015-2017"
+  },
+  "threshold_selection": {
+    "area_recall": 0.852776,
+    "area_precision": 0.801173,
+    "storm_recall": 0.884141,
+    "storm_precision": 0.805155,
+    "interpretation": "Frozen observation-level classification cutoff. Not independently validated as a grid-level cutoff."
+  },
+  "dataset_counts": {
+    "development_observations": 66514,
+    "unique_sampled_locations": 62138,
+    "geographic_grid_cells": 4492,
+    "historical_observations": 85678,
+    "historical_grid_storm_summaries": 15873,
+    "independent_test_observations": 19164,
+    "historical_storms": 4
+  },
+  "geography": {
+    "coordinate_reference_system": "EPSG:4326",
+    "grid_cell_degrees": 0.01,
+    "approximate_cell_height_km": 1.11,
+    "approximate_cell_width_km": 0.96,
+    "grid_id_method": "Round latitude and longitude divided by 0.01 using pandas rounding, then join with underscore.",
+    "extent": {
+      "min_lat": 29.44673985,
+      "max_lat": 30.21149134,
+      "min_lon": -95.7999615,
+      "max_lon": -95.00007922
+    },
+    "municipal_boundary_clipped": false,
+    "unsampled_cells": "No data"
+  },
+  "coverage": {
+    "single_location": 1,
+    "limited_coverage": [
+      2,
+      4
+    ],
+    "greater_coverage_minimum": 5,
+    "counts": {
+      "Greater coverage": 3548,
+      "Limited coverage": 720,
+      "Single sampled location": 224
+    },
+    "interpretation": "Sampling coverage, not prediction confidence."
+  },
+  "feature_descriptions": {
+    "elevation_m": "Elevation in meters.",
+    "slope_degrees": "Terrain slope in degrees.",
+    "distance_to_bayou_m": "Distance to mapped bayou or stream in meters.",
+    "paved_pct": "Research proxy representing the share of a tract near major highways. Not a general impervious-surface measurement.",
+    "land_cover_type": "Developed land cover category."
+  },
+  "susceptibility": {
+    "score_range": [
+      0,
+      1
+    ],
+    "location_score": "Positive-class model probability output.",
+    "grid_score": "Mean score across unique sampled locations within a geographic cell.",
+    "interpretation": "Relative model-based historical susceptibility, not a calibrated future flood probability.",
+    "locations_at_or_above_cutoff": 33666
+  },
+  "shap": {
+    "units": "Raw model log-odds",
+    "local_explanation_count": 62138,
+    "encoded_feature_count": 8,
+    "grouped_feature_count": 5,
+    "land_cover_grouping": "Sum signed SHAP contributions from all one-hot encoded land cover features.",
+    "grid_aggregation": "Mean signed SHAP contribution across unique sampled locations.",
+    "positive_contribution": "Raises the raw model output relative to the SHAP baseline.",
+    "negative_contribution": "Lowers the raw model output relative to the SHAP baseline.",
+    "grouped_mean_absolute_importance": {
+      "elevation_m": 1.371505901458531,
+      "paved_pct": 0.7309380882001181,
+      "slope_degrees": 0.663928903002483,
+      "land_cover_type": 0.29530769466063417,
+      "distance_to_bayou_m": 0.15317801780359425
+    },
+    "original_global_importance_source": "reports/shap_feature_importance.csv",
+    "original_global_sample_size": 5000,
+    "original_global_encoded_features": 8,
+    "figures": [
+      "reports/figures/shap_dependence_distance_to_bayou_m.png",
+      "reports/figures/shap_dependence_elevation_m.png",
+      "reports/figures/shap_dependence_slope_degrees.png",
+      "reports/figures/shap_lightgbm_beeswarm.png",
+      "reports/figures/shap_lightgbm_mean_abs.png",
+      "reports/figures/shap_waterfall_flooded_correct.png",
+      "reports/figures/shap_waterfall_not_flooded_correct.png",
+      "reports/figures/shap_waterfall_wrong_prediction.png"
+    ]
+  },
+  "historical": {
+    "storm_years": {
+      "Memorial Day Flood": 2015,
+      "Tax Day Flood": 2016,
+      "Hurricane Harvey": 2017,
+      "Tropical Storm Imelda": 2019
+    },
+    "storm_observation_counts": {
+      "Memorial Day Flood": 21780,
+      "Tax Day Flood": 21850,
+      "Hurricane Harvey": 22884,
+      "Tropical Storm Imelda": 19164
+    },
+    "development_protocol": "leave_one_storm_out",
+    "independent_test_protocol": "independent_test",
+    "development_prediction_source": "reports/oof_lightgbm_no_rain_leave_one_storm_out.csv",
+    "independent_prediction_source": "reports/final_test_predictions_lightgbm_no_rain.csv",
+    "positive_label": "Observation associated with a recorded flood report.",
+    "negative_label": "Sampled observation without an associated flood report. Not verified dry.",
+    "classification_cutoff": 0.5,
+    "pr_auc_method": "average_precision_score",
+    "event_specific_shap_available": false
+  },
+  "limitations": [
+    "Research estimates, not official flood warnings.",
+    "Not a real-time or future storm forecast.",
+    "Rainfall is excluded from the selected model.",
+    "No property-level flood risk assessment.",
+    "Only sampled geographic cells have predictions.",
+    "Sampling coverage is not prediction confidence.",
+    "Negative labels do not establish absence of flooding.",
+    "SHAP contributions are not causal explanations.",
+    "Mean SHAP explains mean raw log-odds, not mean probability.",
+    "General susceptibility predictions are in-sample outputs.",
+    "Historical maps do not represent inundation extent.",
+    "Historical storm samples and coverage differ.",
+    "Development validation informed model selection.",
+    "Study area is not clipped to municipal boundaries."
+  ],
+  "research_protection": {
+    "protected_source_files": 28,
+    "independent_test_evaluation_rerun": false,
+    "independent_test_used_for_training": false,
+    "original_model_configuration_modified": false
+  },
+  "preparation_environment": {
+    "python": "3.11.0",
+    "pandas": "3.1.1",
+    "numpy": "2.4.6",
+    "scikit_learn": "1.9.1",
+    "lightgbm": "4.7.0",
+    "shap": "0.51.0",
+    "pyarrow": "26.0.1"
+  },
+  "data_schema": {
+    "location_predictions.parquet": [
+      "lat",
+      "lon",
+      "grid_id",
+      "elevation_m",
+      "slope_degrees",
+      "distance_to_bayou_m",
+      "paved_pct",
+      "land_cover_type",
+      "susceptibility_score",
+      "predicted_at_frozen_cutoff",
+      "shap_elevation_m",
+      "shap_slope_degrees",
+      "shap_distance_to_bayou_m",
+      "shap_paved_pct",
+      "shap_land_cover_type",
+      "shap_base_value",
+      "raw_model_score"
+    ],
+    "grid_summary.parquet": [
+      "grid_id",
+      "sample_count",
+      "mean_score",
+      "min_score",
+      "max_score",
+      "median_score",
+      "std_score",
+      "locations_above_cutoff",
+      "share_above_cutoff",
+      "mean_elevation_m",
+      "mean_slope_degrees",
+      "mean_distance_to_bayou_m",
+      "mean_paved_pct",
+      "dominant_land_cover",
+      "mean_raw_model_score",
+      "mean_shap_base_value",
+      "shap_elevation_m",
+      "shap_slope_degrees",
+      "shap_distance_to_bayou_m",
+      "shap_paved_pct",
+      "shap_land_cover_type",
+      "development_observation_count",
+      "development_report_positive_count",
+      "coverage_category",
+      "dominant_positive_factor",
+      "dominant_negative_factor",
+      "center_lat",
+      "center_lon",
+      "south",
+      "north",
+      "west",
+      "east"
+    ],
+    "historical_predictions.parquet": [
+      "year",
+      "storm_name",
+      "lat",
+      "lon",
+      "grid_id",
+      "elevation_m",
+      "slope_degrees",
+      "distance_to_bayou_m",
+      "paved_pct",
+      "land_cover_type",
+      "row_index",
+      "y_true",
+      "y_prob",
+      "fold",
+      "evaluation_protocol",
+      "historical_id",
+      "y_pred",
+      "classification",
+      "classification_correct",
+      "frozen_cutoff"
+    ],
+    "historical_grid_summary.parquet": [
+      "year",
+      "storm_name",
+      "grid_id",
+      "evaluation_protocol",
+      "sample_count",
+      "mean_score",
+      "min_score",
+      "max_score",
+      "report_positive_count",
+      "report_positive_share",
+      "predicted_positive_count",
+      "predicted_positive_share",
+      "correct_count",
+      "accuracy",
+      "tp_count",
+      "tn_count",
+      "fp_count",
+      "fn_count",
+      "tp_share",
+      "tn_share",
+      "fp_share",
+      "fn_share",
+      "coverage_category",
+      "center_lat",
+      "center_lon",
+      "south",
+      "north",
+      "west",
+      "east"
+    ],
+    "storm_metrics.csv": [
+      "year",
+      "storm_name",
+      "evaluation_protocol",
+      "observation_count",
+      "grid_count",
+      "frozen_cutoff",
+      "report_positive_count",
+      "predicted_positive_count",
+      "accuracy",
+      "precision",
+      "recall",
+      "f1",
+      "roc_auc",
+      "pr_auc",
+      "tp",
+      "tn",
+      "fp",
+      "fn"
+    ],
+    "global_shap_importance.csv": [
+      "feature",
+      "mean_abs_shap",
+      "shap_rank",
+      "lightgbm_split_importance",
+      "lightgbm_split_rank"
+    ]
+  }
+}

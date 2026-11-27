@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "completed_at_utc": "2026-11-09T06:15:45.152945+00:00",
+  "seed": 42,
+  "models": [
+    "logistic_regression_no_rain",
+    "lightgbm_no_rain",
+    "mlp_no_rain",
+    "cnn_hybrid",
+    "cnn_tile_only",
+    "dummy"
+  ],
+  "results_file": "reports\\final_test_results.csv"
+}
