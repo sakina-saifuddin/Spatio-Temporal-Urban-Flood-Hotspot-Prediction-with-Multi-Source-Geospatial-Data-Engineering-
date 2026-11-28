@@ -5,8 +5,5 @@
   publish = "."
   command = "echo 'Static site: nothing to build'"
 
-# Cache the large data files for a day; HTML is always revalidated so new deploys show up immediately.
-[[headers]]
-  for = "/data/*"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
+# No long cache rules: Netlify's default makes browsers re-check every file, so a new deploy shows up at once.
+# (Data files are also versioned with ?v= in app.js.)

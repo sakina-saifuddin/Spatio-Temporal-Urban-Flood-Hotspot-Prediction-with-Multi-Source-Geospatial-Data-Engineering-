@@ -98,7 +98,10 @@ document.getElementById("legend-items").innerHTML = `
 // =====================================================================
 // 3. Load data and paint the smooth color glow
 // =====================================================================
-Promise.all([getJSON("data/cells.json"), getJSON("data/storms.json"), getJSON("data/hotspots.json"), getJSON("data/repeat.json")])
+// DATA_V: bump when the files in data/ change, so browsers never mix old data with new code
+const DATA_V = 2;
+const dataUrl = (name) => `data/${name}.json?v=${DATA_V}`;
+Promise.all([getJSON(dataUrl("cells")), getJSON(dataUrl("storms")), getJSON(dataUrl("hotspots")), getJSON(dataUrl("repeat"))])
   .then(([cells, storms, hotspots, repeat]) => {
     state.cells = cells;
     state.storms = storms;
@@ -721,6 +724,7 @@ function clearRepeat() {
 
 // Small bar chart of an area's reports in each storm (used in the pin tooltip)
 function stormBars(byStorm) {
+  if (!byStorm) return "";
   const max = Math.max(...Object.values(byStorm), 1);
   return Object.entries(byStorm).map(([y, n]) => `
     <div class="sb-row"><span>${STORM_SHORT[y]}</span><span class="sb-bar" style="width:${Math.max(4, Math.round((n / max) * 100))}%"></span><b>${n}</b></div>`).join("");
