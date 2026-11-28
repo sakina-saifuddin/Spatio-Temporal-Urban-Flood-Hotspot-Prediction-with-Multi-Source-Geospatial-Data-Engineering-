@@ -20,3 +20,6 @@ data/marvin
 
 # Netlify CLI local state
 .netlify/
+
+# LaTeX build output (final copy is report/FloodSense_Final_Report.pdf)
+report/main.pdf
